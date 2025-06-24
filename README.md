@@ -1,22 +1,17 @@
 <<<<<<< HEAD
-# monopolyBank
 =======
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+=======
+Proje Adı: "Dijital Monopoly Kasası"
+>>>>>>> 7afe299 (Monopoly Bank UI ve backend güncellemeleri)
 
-## Getting Started
+Proje Özeti
 
-First, run the development server:
+Bu web uygulaması, Monopoly oyuncularının fiziksel para kullanmak yerine tüm finansal işlemlerini dijital ortamda takip etmelerini sağlar. Bir oyuncu "Lobi Kurucu" (Host) olarak oyunu başlatır, diğer oyuncular benzersiz bir lobi kodu ile katılır. Oyun başladığında, sırası gelen oyuncu para transferi, kasadan para ekleme/çıkarma gibi işlemleri yapabilir. Tüm işlemler bir geçmiş kaydında tutulur ve lobi kurucusu hatalı işlemleri geri alabilir.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Teknoloji Yığını (Technology Stack)
 
+<<<<<<< HEAD
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
@@ -38,3 +33,10 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 >>>>>>> c18102b (Initial commit from Create Next App)
+=======
+Frontend: Next.js (React ile)
+Styling: Tailwind CSS (Hızlı ve modern tasarım için ideal) veya Chakra UI / Shadcn/UI (Hazır bileşenler için)
+Backend: Next.js API Routes
+Real-time İletişim: Socket.IO veya Pusher. Bu proje için Socket.IO en uygunudur çünkü lobiye katılım, anlık bakiye güncellemeleri ve sıra geçişleri gibi gerçek zamanlı iletişim gerektirir.
+State Management (Durum Yönetimi): React Context API veya Zustand. Küçük ve orta ölçekli bu proje için Context API yeterli olacaktır.
+>>>>>>> 7afe299 (Monopoly Bank UI ve backend güncellemeleri)
