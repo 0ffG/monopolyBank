@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSocket } from "@/lib/socket"; // Doğru yolu kontrol edin
+import PlayerList from "./PlayerList";
 
 // Oyuncu tipi tanımı: Şimdi id içeriyor
 type Player = {
@@ -165,27 +166,12 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
           </span>
         </h2>
         <h3 className="text-2xl font-bold mb-4 text-indigo-700 drop-shadow">Oyuncular:</h3>
-        <ul className="mb-6 space-y-2">
-          {/* Oyuncu listesini render et */}
-          {lobby.players.map((player) => {
-            console.log(`Oyuncu render ediliyor: ID='${player.id}', İsim='${player.name}'`);
-            return (
-              <li
-                key={player.id}
-                className="py-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-100 rounded-lg flex items-center justify-between shadow-md border-2 border-blue-100"
-              >
-                <span className="font-bold text-indigo-800 text-lg drop-shadow">
-                  {player.name && player.name.trim() !== '' ? player.name : "İsimsiz Oyuncu"}
-                </span>
-                {player.name === lobby.owner && (
-                  <span className="text-base text-purple-700 font-extrabold bg-purple-100 px-3 py-1 rounded-full shadow">
-                    Kurucu
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        <PlayerList
+          players={lobby.players}
+          isOwner={isOwner}
+          lobbyCode={lobbyCode}
+          owner={lobby.owner}
+        />
         {isOwner && (
           <div className="flex flex-col gap-5 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 shadow">
             <label htmlFor="balance-input" className="text-lg font-bold text-indigo-700">
