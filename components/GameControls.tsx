@@ -37,6 +37,19 @@ export default function GameControls({ lobbyCode, players, meId }: Props) {
         value={amount}
         onChange={(e) => setAmount(Number(e.target.value))}
       />
+      {/* Quick amount buttons */}
+      <div className="flex gap-2">
+        {[10, 50, 100].map((val) => (
+          <button
+            key={val}
+            type="button"
+            onClick={() => setAmount((a) => a + val)}
+            className="bg-gray-200 text-black px-2 py-1 rounded"
+          >
+            +{val}
+          </button>
+        ))}
+      </div>
       <div className="flex gap-2">
         <button onClick={handleAdd} className="bg-green-500 text-white px-3 py-1 rounded">Ekle</button>
         <button onClick={handleSubtract} className="bg-yellow-500 text-white px-3 py-1 rounded">Çıkar</button>

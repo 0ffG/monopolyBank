@@ -5,7 +5,8 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  /* Make default text darker for better readability */
+  --foreground: #000000;
 }
 
 @theme inline {
