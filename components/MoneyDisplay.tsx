@@ -9,25 +9,21 @@ type Props = {
 
 export default function MoneyDisplay({ players, currentTurn }: Props) {
   return (
-    <table className="min-w-full text-left border-collapse">
-      <thead>
-        <tr>
-          <th className="px-4 py-2">Oyuncu</th>
-          <th className="px-4 py-2">Bakiye</th>
-        </tr>
-      </thead>
-      <tbody>
-        {players.map((p, idx) => (
-          <tr
-            key={p.id}
-            className={idx === currentTurn ? "bg-green-100" : ""}
-          >
-            <td className="px-4 py-2 font-medium">{p.name}</td>
-            <td className="px-4 py-2">${p.balance}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+      {players.map((p, idx) => (
+        <div
+          key={p.id}
+          className={`p-4 rounded-lg shadow-md text-center border-2 ${
+            idx === currentTurn
+              ? "bg-green-200 border-green-500"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <p className="font-bold text-lg mb-2">{p.name}</p>
+          <p className="text-2xl font-mono">${p.balance}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 

@@ -40,7 +40,7 @@ export default function GamePage() {
   const isMyTurn = game.players[game.currentTurn]?.id === myId;
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="min-h-screen p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-yellow-100">
       <MoneyDisplay players={game.players} currentTurn={game.currentTurn} />
       {isMyTurn && (
         <GameControls lobbyCode={code} players={game.players} meId={myId} />
