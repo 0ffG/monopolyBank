@@ -136,9 +136,9 @@ export default function JoinOrCreateLobbyForm() {
       <input
         type="text"
         placeholder="İsminiz"
-        className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200"
+        className="border-2 border-blue-500 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 bg-white text-blue-900 font-bold shadow-md placeholder-blue-400 transition duration-200"
         value={name}
-        onChange={handleNameChange} // Güncellenmiş onChange handler
+        onChange={handleNameChange}
         maxLength={15}
         required
       />
@@ -156,13 +156,13 @@ export default function JoinOrCreateLobbyForm() {
       <input
         type="text"
         placeholder="Lobi Kodu"
-        className="border rounded-lg p-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200 uppercase tracking-wider"
+        className="border-2 border-pink-500 rounded-xl p-3 focus:ring-2 focus:ring-pink-400 focus:border-pink-500 bg-white text-pink-900 font-bold shadow-md placeholder-pink-400 transition duration-200 uppercase tracking-wider"
         value={lobbyCode}
         onChange={(e) => {
           setLobbyCode(e.target.value);
-          setError(""); // Yeni giriş yapıldığında hatayı temizle
+          setError("");
         }}
-        maxLength={6} // Lobi kodunu 6 karakterle sınırla
+        maxLength={6}
         required
       />
 

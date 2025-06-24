@@ -133,19 +133,19 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
   // Lobi verileri yüklenirken gösterilecek yükleme durumu
   if (!lobby) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-        <div className="p-6 text-center text-gray-700 bg-white shadow-xl rounded-2xl animate-pulse">
-          <div className="mb-2 text-xl font-semibold">
-            <span className="font-bold">Lobi Kodu:</span>{" "}
-            <span className="text-blue-600">{lobbyCode}</span>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-indigo-300 p-4">
+        <div className="p-6 text-center text-gray-800 bg-white shadow-2xl rounded-2xl animate-pulse border-2 border-blue-200">
+          <div className="mb-2 text-2xl font-extrabold tracking-wide">
+            <span className="font-extrabold text-indigo-700 drop-shadow">Lobi Kodu:</span>{" "}
+            <span className="text-blue-600 font-extrabold text-2xl animate-pulse-slow drop-shadow">{lobbyCode}</span>
           </div>
-          <p className="text-lg">⏳ Lobi yükleniyor...</p>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="text-lg font-semibold text-indigo-700">⏳ Lobi yükleniyor...</p>
+          <p className="mt-2 text-base text-blue-500 font-medium">
             Lütfen bekleyin, diğer oyuncular bekleniyor.
           </p>
           {/* Eğer playerName boşsa ek uyarı göster */}
           {!playerName && (
-              <p className="mt-4 text-red-500 text-sm font-semibold">
+              <p className="mt-4 text-red-600 text-base font-bold">
                 İsim belirlenmediği için lobiye katılım engellenmiş olabilir. Lütfen ana sayfaya dönüp isminizi girin.
               </p>
           )}
@@ -156,30 +156,29 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
 
   // Ana lobi ekranı (oyuncu listesi, başlatma ayarları)
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 p-4">
-      <div className="p-8 max-w-lg w-full bg-white shadow-2xl rounded-2xl mt-10 border border-gray-200">
-        <h2 className="text-3xl font-extrabold mb-6 text-center text-gray-800">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-indigo-300 p-4">
+      <div className="p-8 max-w-lg w-full bg-white shadow-2xl rounded-2xl mt-10 border-2 border-blue-200">
+        <h2 className="text-4xl font-extrabold mb-6 text-center text-indigo-800 drop-shadow">
           Lobi Kodu:{" "}
-          <span className="text-blue-600 animate-pulse-slow">
+          <span className="text-blue-600 animate-pulse-slow font-extrabold text-4xl drop-shadow">
             {lobby?.code || lobbyCode}
           </span>
         </h2>
-        <h3 className="text-xl font-semibold mb-4 text-gray-700">Oyuncular:</h3>
+        <h3 className="text-2xl font-bold mb-4 text-indigo-700 drop-shadow">Oyuncular:</h3>
         <ul className="mb-6 space-y-2">
           {/* Oyuncu listesini render et */}
           {lobby.players.map((player) => {
             console.log(`Oyuncu render ediliyor: ID='${player.id}', İsim='${player.name}'`);
             return (
               <li
-                key={player.id} // Her zaman benzersiz 'player.id'yi anahtar olarak kullanıyoruz
-                className="py-2 px-4 bg-gray-50 rounded-lg flex items-center justify-between shadow-sm border border-gray-100"
+                key={player.id}
+                className="py-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-100 rounded-lg flex items-center justify-between shadow-md border-2 border-blue-100"
               >
-                {/* Oyuncunun ismini göster, boşsa veya geçersizse varsayılan metin göster */}
-                <span className="font-medium text-gray-800">
+                <span className="font-bold text-indigo-800 text-lg drop-shadow">
                   {player.name && player.name.trim() !== '' ? player.name : "İsimsiz Oyuncu"}
                 </span>
-                {player.name === lobby.owner && ( // Owner hala isimle karşılaştırılıyor
-                  <span className="text-sm text-purple-600 font-semibold bg-purple-100 px-2 py-1 rounded-full">
+                {player.name === lobby.owner && (
+                  <span className="text-base text-purple-700 font-extrabold bg-purple-100 px-3 py-1 rounded-full shadow">
                     Kurucu
                   </span>
                 )}
@@ -187,31 +186,29 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
             );
           })}
         </ul>
-
         {isOwner && (
-          <div className="flex flex-col gap-5 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <label htmlFor="balance-input" className="text-lg font-medium text-gray-700">
+          <div className="flex flex-col gap-5 p-4 bg-blue-50 rounded-lg border-2 border-blue-300 shadow">
+            <label htmlFor="balance-input" className="text-lg font-bold text-indigo-700">
               Başlangıç Parası:
             </label>
             <input
               id="balance-input"
               type="number"
-              className="border border-blue-300 rounded-lg p-3 text-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200 ease-in-out shadow-sm"
+              className="border-2 border-blue-400 rounded-lg p-3 text-lg font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out shadow-md text-indigo-800"
               value={balance}
               onChange={(e) => setBalance(Number(e.target.value))}
-              min="0" // Bakiye negatif olmasın
+              min="0"
             />
             <button
               onClick={handleStartGame}
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 rounded-lg shadow-lg transform transition duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-extrabold py-3 rounded-lg shadow-xl transform transition duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 text-lg"
             >
               Oyunu Başlat
             </button>
           </div>
         )}
-
         {!isOwner && (
-          <p className="text-md text-center mt-6 text-gray-600 italic">
+          <p className="text-lg text-center mt-6 text-indigo-600 italic font-semibold">
             Kurucunun oyunu başlatmasını bekliyorsunuz...
           </p>
         )}
