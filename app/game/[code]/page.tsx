@@ -33,25 +33,50 @@ export default function GamePage() {
   }, [code]);
 
   if (!game) {
-    return <div className="p-4">Yükleniyor...</div>;
+    // Daha modern bir yükleme ekranı
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-4 rounded-full animate-pulse bg-cyan-400"></div>
+          <div className="w-4 h-4 rounded-full animate-pulse bg-pink-500 [animation-delay:0.2s]"></div>
+          <div className="w-4 h-4 rounded-full animate-pulse bg-purple-500 [animation-delay:0.4s]"></div>
+          <span className="text-lg font-medium">Oyun Yükleniyor...</span>
+        </div>
+      </div>
+    );
   }
 
   const isOwner = game.owner === myName;
   const isMyTurn = game.players[game.currentTurn]?.id === myId;
 
   return (
-    <div className="min-h-screen p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-yellow-100">
-      <MoneyDisplay players={game.players} currentTurn={game.currentTurn} />
-      {isMyTurn && (
-        <GameControls lobbyCode={code} players={game.players} meId={myId} />
-      )}
-      <TransactionHistory
-        transactions={game.transactions}
-        players={game.players}
-        isOwner={isOwner}
-        lobbyCode={code}
-      />
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 to-gray-900 text-white p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8 text-center">
+            <h1 className="text-4xl font-bold tracking-tight">Oyun Kodu: <span className="text-cyan-400">{code}</span></h1>
+            <p className="text-slate-400 mt-2">Sıradaki Oyuncu: <span className="font-semibold text-white">{game.players[game.currentTurn]?.name}</span></p>
+        </header>
+
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Sol Sütun: Oyuncular */}
+          <div className="lg:col-span-2">
+              <MoneyDisplay players={game.players} currentTurn={game.currentTurn} myId={myId}/>
+          </div>
+
+          {/* Sağ Sütun: Kontroller ve Geçmiş */}
+          <div className="lg:col-span-1 space-y-8">
+            {isMyTurn && (
+              <GameControls lobbyCode={code} players={game.players} meId={myId} />
+            )}
+            <TransactionHistory
+              transactions={game.transactions}
+              players={game.players}
+              isOwner={isOwner}
+              lobbyCode={code}
+            />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
-

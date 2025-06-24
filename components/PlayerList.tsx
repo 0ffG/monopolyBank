@@ -51,14 +51,14 @@ export default function PlayerList({ players, isOwner, lobbyCode, owner }: Props
             {isOwner && (
               <>
                 <button
-                  className="px-2 text-sm border rounded disabled:opacity-50"
+                  className="px-2 text-sm border rounded disabled:opacity-50 font-bold text-blue-700 bg-blue-200 hover:bg-blue-300 transition-colors"
                   onClick={() => move(i, -1)}
                   disabled={i === 0}
                 >
                   ▲
                 </button>
                 <button
-                  className="px-2 text-sm border rounded disabled:opacity-50"
+                  className="px-2 text-sm border rounded disabled:opacity-50 font-bold text-blue-700 bg-blue-200 hover:bg-blue-300 transition-colors"
                   onClick={() => move(i, 1)}
                   disabled={i === order.length - 1}
                 >

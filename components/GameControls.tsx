@@ -12,59 +12,73 @@ type Props = {
 
 export default function GameControls({ lobbyCode, players, meId }: Props) {
   const socket = getSocket();
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState<number | string>(100); // Başlangıç değeri
   const [target, setTarget] = useState<string>("");
 
   const send = (event: string, payload: any) => {
     socket.emit(event, { code: lobbyCode, ...payload });
-    setAmount(0);
+    setAmount(100); // Eylem sonrası sıfırla
   };
 
-  const handleAdd = () => send("add-money", { playerId: meId, amount });
-  const handleSubtract = () => send("subtract-money", { playerId: meId, amount });
+  const handleAdd = () => send("add-money", { playerId: meId, amount: Number(amount) });
+  const handleSubtract = () => send("subtract-money", { playerId: meId, amount: Number(amount) });
   const handleTransfer = () => {
-    if (!target) return;
-    send("transfer-money", { fromId: meId, toId: target, amount });
+    if (!target || !amount) return;
+    send("transfer-money", { fromId: meId, toId: target, amount: Number(amount) });
   };
 
   const endTurn = () => socket.emit("end-turn", lobbyCode);
 
   return (
-    <div className="space-y-2">
-      <input
-        type="number"
-        className="border p-1 rounded w-full"
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-      />
-      {/* Quick amount buttons */}
-      <div className="flex gap-2">
-        {[10, 50, 100].map((val) => (
-          <button
-            key={val}
-            type="button"
-            onClick={() => setAmount((a) => a + val)}
-            className="bg-gray-200 text-black px-2 py-1 rounded"
-          >
-            +{val}
-          </button>
-        ))}
+    <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl space-y-6 backdrop-blur-sm">
+      <h2 className="text-2xl font-bold text-slate-200">Eylem Menüsü</h2>
+
+      {/* Miktar Girişi */}
+      <div className="space-y-3">
+        <label htmlFor="amount" className="block text-sm font-medium text-slate-400">Miktar</label>
+        <input
+          id="amount"
+          type="number"
+          className="border-2 border-slate-600 bg-slate-900 p-3 rounded-lg w-full text-white text-lg font-mono focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
+          placeholder="0"
+        />
+        <div className="flex gap-2">
+          {[100, 500, 1000, 5000].map((val) => (
+            <button
+              key={val}
+              type="button"
+              onClick={() => setAmount(Number(amount || 0) + val)}
+              className="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded-full transition-colors font-semibold"
+            >
+              +{val.toLocaleString()}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="flex gap-2">
-        <button onClick={handleAdd} className="bg-green-500 text-white px-3 py-1 rounded">Ekle</button>
-        <button onClick={handleSubtract} className="bg-yellow-500 text-white px-3 py-1 rounded">Çıkar</button>
+      
+      {/* Banka İşlemleri */}
+      <div className="flex gap-4">
+        <button onClick={handleAdd} className="w-full bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Bankadan Al</button>
+        <button onClick={handleSubtract} className="w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Bankaya Öde</button>
       </div>
-      <div className="flex items-center gap-2">
-        <select className="border p-1 rounded" value={target} onChange={(e) => setTarget(e.target.value)}>
-          <option value="">Seç Oyuncu</option>
+
+      {/* Transfer İşlemleri */}
+      <div className="space-y-3">
+        <select value={target} onChange={(e) => setTarget(e.target.value)} className="w-full border-2 border-slate-600 bg-slate-900 p-3 rounded-lg text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition">
+          <option value="">Oyuncu Seç...</option>
           {players.filter(p => p.id !== meId).map(p => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
-        <button onClick={handleTransfer} className="bg-blue-500 text-white px-3 py-1 rounded">Transfer</button>
+        <button onClick={handleTransfer} disabled={!target} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105 disabled:bg-slate-700 disabled:cursor-not-allowed disabled:transform-none">Transfer Et</button>
       </div>
-      <button onClick={endTurn} className="bg-gray-700 text-white px-3 py-1 rounded w-full">Sıra Bitir</button>
+      
+      <div className="border-t border-slate-700 my-4"></div>
+
+      {/* Sıra Bitirme */}
+      <button onClick={endTurn} className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform hover:scale-105">Sırayı Bitir</button>
     </div>
   );
 }
-

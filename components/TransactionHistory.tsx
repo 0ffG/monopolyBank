@@ -1,6 +1,7 @@
 "use client";
 
 import { Transaction, GamePlayer } from "@/lib/gameLogic";
+import { getSocket } from "@/lib/socket"; // getSocket'ı baştan import edelim
 
 type Props = {
   transactions: Transaction[];
@@ -9,40 +10,62 @@ type Props = {
   lobbyCode: string;
 };
 
-export default function TransactionHistory({ transactions, players, isOwner, lobbyCode }: Props) {
-  const socket = require("@/lib/socket").getSocket();
+// İşlem türüne göre ikon ve renk belirleyen yardımcı fonksiyon
+const getTransactionStyle = (type: Transaction['type']) => {
+    switch(type) {
+        case 'add': return { icon: '➕', color: 'text-teal-400' };
+        case 'subtract': return { icon: '➖', color: 'text-orange-400' };
+        case 'transfer': return { icon: '✈️', color: 'text-blue-400' };
+        default: return { icon: '▪️', color: 'text-slate-400' };
+    }
+}
 
-  const nameOf = (id?: string) => players.find(p => p.id === id)?.name || "?";
+export default function TransactionHistory({ transactions, players, isOwner, lobbyCode }: Props) {
+  const socket = getSocket();
+
+  const nameOf = (id?: string) => players.find(p => p.id === id)?.name || "Bilinmeyen Oyuncu";
 
   const handleDelete = (id: string) => {
     socket.emit("delete-transaction", { code: lobbyCode, id });
   };
 
-  if (transactions.length === 0) {
-    return <p className="text-sm text-gray-500">Henüz işlem yok.</p>;
-  }
-
   return (
-    <ul className="space-y-1">
-      {transactions.map((t) => {
-        let text = "";
-        if (t.type === "add") {
-          text = `${nameOf(t.to)} bankadan ${t.amount}$ aldı`;
-        } else if (t.type === "subtract") {
-          text = `${nameOf(t.from)} bankaya ${t.amount}$ ödedi`;
-        } else {
-          text = `${nameOf(t.from)} -> ${nameOf(t.to)} : ${t.amount}$`;
-        }
-        return (
-          <li key={t.id} className="flex justify-between items-center bg-white border px-2 py-1 rounded">
-            <span>{text}</span>
-            {isOwner && (
-              <button className="text-red-500" onClick={() => handleDelete(t.id)}>Sil</button>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+     <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl backdrop-blur-sm">
+        <h2 className="text-2xl font-bold mb-6 text-slate-200">İşlem Geçmişi</h2>
+        {transactions.length === 0 ? (
+            <p className="text-sm text-center py-4 text-slate-400">Henüz işlem yapılmadı.</p>
+        ) : (
+            <ul className="space-y-3 h-96 overflow-y-auto pr-2">
+            {[...transactions].reverse().map((t) => { // En yeni işlem en üstte
+                const { icon, color } = getTransactionStyle(t.type);
+                let text = "";
+                if (t.type === "add") {
+                    text = <><span className="font-semibold">{nameOf(t.to)}</span> bankadan <span className="font-bold">${t.amount.toLocaleString()}</span> aldı.</>;
+                } else if (t.type === "subtract") {
+                    text = <><span className="font-semibold">{nameOf(t.from)}</span> bankaya <span className="font-bold">${t.amount.toLocaleString()}</span> ödedi.</>;
+                } else {
+                    text = <><span className="font-semibold">{nameOf(t.from)}</span>, <span className="font-semibold">{nameOf(t.to)}</span> oyuncusuna <span className="font-bold">${t.amount.toLocaleString()}</span> gönderdi.</>;
+                }
+                return (
+                <li key={t.id} className="flex justify-between items-center bg-slate-700/70 p-3 rounded-lg transition-colors hover:bg-slate-700">
+                    <div className="flex items-center gap-3">
+                        <span className={`text-xl ${color}`}>{icon}</span>
+                        <p className="text-sm text-slate-300">{text}</p>
+                    </div>
+                    {isOwner && (
+                    <button 
+                        className="text-red-700 hover:text-white text-xs font-extrabold transition-colors opacity-90 hover:opacity-100 bg-red-200 hover:bg-red-500 px-3 py-1 rounded shadow"
+                        onClick={() => handleDelete(t.id)}
+                        title="Bu işlemi sil"
+                    >
+                        SİL
+                    </button>
+                    )}
+                </li>
+                );
+            })}
+            </ul>
+        )}
+     </div>
   );
 }
-
