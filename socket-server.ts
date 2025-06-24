@@ -25,9 +25,29 @@ const io = new Server(server, {
 // Oyuncu tipi tanımı
 type Player = { id: string; name: string; };
 
+type GamePlayer = Player & { balance: number };
+
+type Transaction = {
+  id: string;
+  type: "add" | "subtract" | "transfer";
+  from?: string; // player id
+  to?: string;   // player id
+  amount: number;
+};
+
+type GameState = {
+  players: GamePlayer[];
+  currentTurn: number;
+  owner: string;
+  transactions: Transaction[];
+};
+
 // Lobi verilerini bellekte saklamak için bir kayıt
 // Oyuncuların listesi { id: string; name: string } objelerinden oluşur
 const lobbies: Record<string, { players: Player[]; owner: string }> = {};
+
+// Oyun durumlarını saklamak için kayıt
+const games: Record<string, GameState> = {};
 
 // Soket ID'lerini ve bulundukları lobi kodlarını eşleştirmek için yardımcı bir harita
 const socketLobbyMap: Record<string, string> = {}; // { socketId: lobbyCode }
@@ -96,8 +116,99 @@ io.on("connection", (socket) => {
   // 'start-game' olayını dinle
   socket.on("start-game", ({ code, balance }: { code: string; balance: number }) => {
     console.log(`[SERVER] 'start-game' olayı alındı: Lobi '${code}' için oyun başlatılıyor, başlangıç parası: '${balance}'`);
-    io.to(code).emit("game-started", { lobbyCode: code, initialBalance: balance });
+    const lobby = lobbies[code];
+    if (!lobby) {
+      console.warn(`[SERVER] '${code}' kodlu lobi bulunamadı.`);
+      return;
+    }
+
+    const gamePlayers: GamePlayer[] = lobby.players.map((p) => ({ ...p, balance }));
+    games[code] = {
+      players: gamePlayers,
+      currentTurn: 0,
+      owner: lobby.owner,
+      transactions: [],
+    };
+
+    io.to(code).emit("game-started", { lobbyCode: code, initialBalance: balance, players: gamePlayers });
     console.log(`[SERVER] 'game-started' olayı '${code}' odasına gönderildi.`);
+  });
+
+  socket.on("request-game-state", (code: string) => {
+    const game = games[code];
+    if (game) {
+      io.to(socket.id).emit("game-state", game);
+    }
+  });
+
+  socket.on("add-money", ({ code, playerId, amount }: { code: string; playerId: string; amount: number }) => {
+    const game = games[code];
+    if (!game) return;
+    const player = game.players.find(p => p.id === playerId);
+    if (!player) return;
+    player.balance += amount;
+    const txn: Transaction = { id: Date.now().toString(), type: "add", to: playerId, amount };
+    game.transactions.push(txn);
+    io.to(code).emit("game-updated", game);
+  });
+
+  socket.on("subtract-money", ({ code, playerId, amount }: { code: string; playerId: string; amount: number }) => {
+    const game = games[code];
+    if (!game) return;
+    const player = game.players.find(p => p.id === playerId);
+    if (!player) return;
+    player.balance -= amount;
+    const txn: Transaction = { id: Date.now().toString(), type: "subtract", from: playerId, amount };
+    game.transactions.push(txn);
+    io.to(code).emit("game-updated", game);
+  });
+
+  socket.on("transfer-money", ({ code, fromId, toId, amount }: { code: string; fromId: string; toId: string; amount: number }) => {
+    const game = games[code];
+    if (!game) return;
+    const from = game.players.find(p => p.id === fromId);
+    const to = game.players.find(p => p.id === toId);
+    if (!from || !to) return;
+    from.balance -= amount;
+    to.balance += amount;
+    const txn: Transaction = { id: Date.now().toString(), type: "transfer", from: fromId, to: toId, amount };
+    game.transactions.push(txn);
+    io.to(code).emit("game-updated", game);
+  });
+
+  socket.on("end-turn", (code: string) => {
+    const game = games[code];
+    if (!game) return;
+    game.currentTurn = (game.currentTurn + 1) % game.players.length;
+    io.to(code).emit("game-updated", game);
+  });
+
+  socket.on("delete-transaction", ({ code, id }: { code: string; id: string }) => {
+    const game = games[code];
+    if (!game) return;
+    const index = game.transactions.findIndex(t => t.id === id);
+    if (index === -1) return;
+    const txn = game.transactions.splice(index, 1)[0];
+    switch (txn.type) {
+      case "add": {
+        const p = game.players.find(p => p.id === txn.to);
+        if (p) p.balance -= txn.amount;
+        break;
+      }
+      case "subtract": {
+        const p = game.players.find(p => p.id === txn.from);
+        if (p) p.balance += txn.amount;
+        break;
+      }
+      case "transfer": {
+        const from = game.players.find(p => p.id === txn.from);
+        const to = game.players.find(p => p.id === txn.to);
+        if (from) from.balance += txn.amount;
+        if (to) to.balance -= txn.amount;
+        break;
+      }
+    }
+    io.to(code).emit("game-updated", game);
   });
 
   // Bir soket bağlantısı kesildiğinde
