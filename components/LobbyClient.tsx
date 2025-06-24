@@ -60,61 +60,50 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
 
     const socket = getSocket();
 
-    // Socket henüz bağlı değilse, bağlanmasını beklemek için bir listener ekleyelim
-    // ve bağlandığında 'join-lobby' olayını gönderelim.
-    const handleConnect = () => {
-      console.log("Socket bağlandı, join-lobby gönderiliyor...");
-      socket.emit("join-lobby", { name: playerName, code: lobbyCode });
-    };
-
-    // Socket zaten bağlıysa direkt 'join-lobby' gönder, değilse 'connect' olayını dinle.
-    if (socket.connected) {
-      console.log("🟢 'join-lobby' olayını sunucuya gönderiliyor (socket zaten bağlı):", { name: playerName, code: lobbyCode });
-      socket.emit("join-lobby", { name: playerName, code: lobbyCode });
-    } else {
-      console.log("Socket henüz bağlı değil, 'connect' olayını dinliyor...");
-      socket.on("connect", handleConnect);
-    }
-
-    /**
-     * 'lobby-updated' olayını işleyen fonksiyon.
-     * Sunucudan gelen güncel lobi verilerini state'e kaydeder.
-     */
+    // Olay dinleyicilerini önceden ekleyelim ki join sonrası gelecek ilk mesajı kaçırmayalım
     const handleLobbyUpdate = (data: LobbyData) => {
       console.log("✅ 'lobby-updated' alındı:", data);
       setLobby(data);
-      // isOwner kontrolü: Gelen lobi verisindeki 'owner' ismi ile yerel 'playerName'i karşılaştır.
       setIsOwner(data.owner === playerName);
-      // Gelen oyuncu listesindeki isimleri konsola yazdır
       if (data.players && data.players.length > 0) {
-        data.players.forEach(p => console.log(`  Gelen Oyuncu: ID=${p.id}, İsim='${p.name}'`));
+        data.players.forEach((p) =>
+          console.log(`  Gelen Oyuncu: ID=${p.id}, İsim='${p.name}'`)
+        );
       } else {
         console.log("  Gelen lobide hiç oyuncu yok veya liste boş.");
       }
     };
 
-    /**
-     * 'game-started' olayını işleyen fonksiyon.
-     * Oyun başladığında ilgili sayfaya yönlendirir.
-     */
     const handleGameStarted = (data: { lobbyCode: string }) => {
       console.log("🚀 'game-started' alındı, oyuna yönlendiriliyor:", data.lobbyCode);
       router.push(`/game/${data.lobbyCode}`);
     };
 
-    // 'join-error' olayını dinle (sunucudan gelen hatalar için)
     const handleJoinError = (data: { message: string }) => {
-        console.error("Lobiye katılım hatası:", data.message);
-        // Kullanıcıya modal ile hata göster (alert yerine daha iyi bir UI kullanın)
-        alert(`Lobiye katılırken hata oluştu: ${data.message}`);
-        router.push("/"); // Ana sayfaya geri dön
+      console.error("Lobiye katılım hatası:", data.message);
+      alert(`Lobiye katılırken hata oluştu: ${data.message}`);
+      router.push("/");
     };
 
-
-    // Socket olay dinleyicilerini kaydet
     socket.on("lobby-updated", handleLobbyUpdate);
     socket.on("game-started", handleGameStarted);
     socket.on("join-error", handleJoinError);
+
+    const handleConnect = () => {
+      console.log("Socket bağlandı, join-lobby gönderiliyor...");
+      socket.emit("join-lobby", { name: playerName, code: lobbyCode });
+    };
+
+    if (socket.connected) {
+      console.log(
+        "🟢 'join-lobby' olayını sunucuya gönderiliyor (socket zaten bağlı):",
+        { name: playerName, code: lobbyCode }
+      );
+      socket.emit("join-lobby", { name: playerName, code: lobbyCode });
+    } else {
+      console.log("Socket henüz bağlı değil, 'connect' olayını dinliyor...");
+      socket.once("connect", handleConnect);
+    }
 
 
     /**
