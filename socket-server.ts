@@ -211,6 +211,25 @@ io.on("connection", (socket) => {
     io.to(code).emit("game-updated", game);
   });
 
+  socket.on(
+    "set-player-order",
+    ({ code, order }: { code: string; order: string[] }) => {
+      const lobby = lobbies[code];
+      if (!lobby) return;
+      if (order.length !== lobby.players.length) return;
+      const idSet = new Set(lobby.players.map((p) => p.id));
+      if (!order.every((id) => idSet.has(id))) return;
+      lobby.players.sort(
+        (a, b) => order.indexOf(a.id) - order.indexOf(b.id)
+      );
+      io.to(code).emit("lobby-updated", {
+        code,
+        players: lobby.players,
+        owner: lobby.owner,
+      });
+    }
+  );
+
   // Bir soket bağlantısı kesildiğinde
   socket.on("disconnect", () => {
     console.log(`❌ Soket bağlantısı kesildi: ${socket.id}`);
