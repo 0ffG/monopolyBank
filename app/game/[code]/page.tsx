@@ -33,14 +33,14 @@ export default function GamePage() {
   }, [code]);
 
   if (!game) {
-    // Daha modern bir yükleme ekranı
+    // Modern loading screen
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 rounded-full animate-pulse bg-cyan-400"></div>
           <div className="w-4 h-4 rounded-full animate-pulse bg-pink-500 [animation-delay:0.2s]"></div>
           <div className="w-4 h-4 rounded-full animate-pulse bg-purple-500 [animation-delay:0.4s]"></div>
-          <span className="text-lg font-medium">Oyun Yükleniyor...</span>
+          <span className="text-lg font-medium">Loading Game...</span>
         </div>
       </div>
     );
@@ -53,17 +53,17 @@ export default function GamePage() {
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 to-gray-900 text-white p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center">
-            <h1 className="text-4xl font-bold tracking-tight">Oyun Kodu: <span className="text-cyan-400">{code}</span></h1>
-            <p className="text-slate-400 mt-2">Sıradaki Oyuncu: <span className="font-semibold text-white">{game.players[game.currentTurn]?.name}</span></p>
+            <h1 className="text-4xl font-bold tracking-tight">Game Code: <span className="text-cyan-400">{code}</span></h1>
+            <p className="text-slate-400 mt-2">Current Player: <span className="font-semibold text-white">{game.players[game.currentTurn]?.name}</span></p>
         </header>
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Sol Sütun: Oyuncular */}
+          {/* Left Column: Players */}
           <div className="lg:col-span-2">
               <MoneyDisplay players={game.players} currentTurn={game.currentTurn} myId={myId}/>
           </div>
 
-          {/* Sağ Sütun: Kontroller ve Geçmiş */}
+          {/* Right Column: Controls and History */}
           <div className="lg:col-span-1 space-y-8">
             {isMyTurn && (
               <GameControls lobbyCode={code} players={game.players} meId={myId} />

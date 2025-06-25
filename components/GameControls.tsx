@@ -31,11 +31,11 @@ export default function GameControls({ lobbyCode, players, meId }: Props) {
 
   return (
     <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl space-y-6 backdrop-blur-sm">
-      <h2 className="text-2xl font-bold text-slate-200">Eylem Menüsü</h2>
+      <h2 className="text-2xl font-bold text-slate-200">Action Menu</h2>
 
-      {/* Miktar Girişi */}
+      {/* Amount Input */}
       <div className="space-y-3">
-        <label htmlFor="amount" className="block text-sm font-medium text-slate-400">Miktar</label>
+        <label htmlFor="amount" className="block text-sm font-medium text-slate-400">Amount</label>
         <input
           id="amount"
           type="number"
@@ -58,27 +58,27 @@ export default function GameControls({ lobbyCode, players, meId }: Props) {
         </div>
       </div>
       
-      {/* Banka İşlemleri */}
+      {/* Bank Actions */}
       <div className="flex gap-4">
-        <button onClick={handleAdd} className="w-full bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Bankadan Al</button>
-        <button onClick={handleSubtract} className="w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Bankaya Öde</button>
+        <button onClick={handleAdd} className="w-full bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Receive from Bank</button>
+        <button onClick={handleSubtract} className="w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Pay to Bank</button>
       </div>
 
-      {/* Transfer İşlemleri */}
+      {/* Transfer Actions */}
       <div className="space-y-3">
         <select value={target} onChange={(e) => setTarget(e.target.value)} className="w-full border-2 border-slate-600 bg-slate-900 p-3 rounded-lg text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition">
-          <option value="">Oyuncu Seç...</option>
+          <option value="">Select Player...</option>
           {players.filter(p => p.id !== meId).map(p => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
-        <button onClick={handleTransfer} disabled={!target} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105 disabled:bg-slate-700 disabled:cursor-not-allowed disabled:transform-none">Transfer Et</button>
+        <button onClick={handleTransfer} disabled={!target} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105 disabled:bg-slate-700 disabled:cursor-not-allowed disabled:transform-none">Transfer</button>
       </div>
       
       <div className="border-t border-slate-700 my-4"></div>
 
-      {/* Sıra Bitirme */}
-      <button onClick={endTurn} className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform hover:scale-105">Sırayı Bitir</button>
+      {/* End Turn */}
+      <button onClick={endTurn} className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform hover:scale-105">End Turn</button>
     </div>
   );
 }
