@@ -37,7 +37,7 @@ export default function PlayerList({ players, isOwner, lobbyCode, owner }: Props
       {order.map((player, i) => (
         <li
           key={player.id}
-          className="py-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-100 rounded-lg flex items-center justify-between shadow-md border-2 border-blue-100"
+          className="py-2 px-4 bg-gradient-to-r from-cyan-200 to-blue-400 rounded-lg flex items-center justify-between shadow-md border-2 border-blue-300"
         >
           <span className="font-bold text-indigo-800 text-lg drop-shadow">
             {player.name && player.name.trim() !== "" ? player.name : "İsimsiz Oyuncu"}

@@ -116,7 +116,7 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
   // Loading state while lobby data is being fetched
   if (!lobby) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-indigo-300 p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-cyan-300 via-sky-400 to-indigo-500 p-4">
         <div className="p-6 text-center text-gray-800 bg-white shadow-2xl rounded-2xl animate-pulse border-2 border-blue-200">
           <div className="mb-2 text-2xl font-extrabold tracking-wide">
             <span className="font-extrabold text-indigo-700 drop-shadow">Lobby Code:</span>{" "}
@@ -139,7 +139,7 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
 
   // Main lobby screen (player list and start settings)
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-indigo-300 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-cyan-300 via-sky-400 to-indigo-500 p-4">
       <div className="p-8 max-w-lg w-full bg-white shadow-2xl rounded-2xl mt-10 border-2 border-blue-200">
         <h2 className="text-4xl font-extrabold mb-6 text-center text-indigo-800 drop-shadow">
           Lobby Code:{" "}

@@ -50,7 +50,7 @@ export default function GamePage() {
   const isMyTurn = game.players[game.currentTurn]?.id === myId;
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 to-gray-900 text-white p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8 text-center">
             <h1 className="text-4xl font-bold tracking-tight">Oyun Kodu: <span className="text-cyan-400">{code}</span></h1>
