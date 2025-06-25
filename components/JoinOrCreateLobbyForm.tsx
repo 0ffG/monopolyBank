@@ -22,14 +22,11 @@ export default function JoinOrCreateLobbyForm() {
   // Komponent yüklendiğinde veya 'name' state'i değiştiğinde çalışır.
   // localStorage'dan oyuncu adını yükler ve input'a set eder.
   useEffect(() => {
-    console.log("JoinOrCreateLobbyForm: useEffect çalışıyor, localStorage kontrol ediliyor.");
     if (typeof window !== "undefined") {
       const storedName = localStorage.getItem("playerName");
       if (storedName) {
         setName(storedName);
-        console.log("JoinOrCreateLobbyForm: playerName localStorage'dan alındı:", storedName);
       } else {
-        console.log("JoinOrCreateLobbyForm: localStorage'da playerName bulunamadı.");
       }
     }
   }, []); // Bağımlılık dizisi boş olduğu için sadece bir kere çalışır
@@ -42,7 +39,6 @@ export default function JoinOrCreateLobbyForm() {
     setError(""); // Yeni giriş yapıldığında hatayı temizle
     if (typeof window !== "undefined") {
       localStorage.setItem("playerName", newName); // Her değişiklikte localStorage'ı güncelle
-      console.log("JoinOrCreateLobbyForm: playerName localStorage'a kaydedildi (anlık):", newName);
     }
   };
 
@@ -53,7 +49,7 @@ export default function JoinOrCreateLobbyForm() {
   const handleCreate = async () => {
     setError(""); // Önceki hataları temizle
     if (!name.trim()) {
-      return setError("Lütfen lobi kurmak için isminizi girin.");
+      return setError("Please enter your name to create a lobby.");
     }
 
     try {
@@ -67,21 +63,19 @@ export default function JoinOrCreateLobbyForm() {
       if (!res.ok) {
         // HTTP hatası varsa
         const errorData = await res.json();
-        throw new Error(errorData.message || "Lobi oluşturulamadı.");
+        throw new Error(errorData.message || "Lobby could not be created.");
       }
 
       const data = await res.json();
       if (data.code) {
         // Başarılı lobi oluşturulduysa, lobi sayfasına yönlendir
-        console.log(`Lobi başarıyla oluşturuldu, kod: ${data.code}`);
-        // localStorage.setItem("playerName", name.trim()); // Zaten handleNameChange içinde yapılıyor
         router.push(`/lobby/${data.code}`);
       } else {
-        setError("Lobi oluşturulamadı: Geçerli bir kod alınamadı.");
+        setError("Lobby could not be created: no valid code received.");
       }
     } catch (err: any) {
-      console.error("Lobi oluşturma hatası:", err);
-      setError(err.message || "Lobi oluşturulurken bir hata oluştu.");
+      console.error("Lobby creation error:", err);
+      setError(err.message || "An error occurred while creating the lobby.");
     }
   };
 
@@ -92,10 +86,10 @@ export default function JoinOrCreateLobbyForm() {
   const handleJoin = async () => {
     setError(""); // Önceki hataları temizle
     if (!name.trim()) {
-      return setError("Lütfen lobiye katılmak için isminizi girin.");
+      return setError("Please enter your name to join the lobby.");
     }
     if (!lobbyCode.trim()) {
-      return setError("Lütfen katılmak istediğiniz lobi kodunu girin.");
+      return setError("Please enter the lobby code you want to join.");
     }
 
     try {
@@ -111,31 +105,29 @@ export default function JoinOrCreateLobbyForm() {
       if (!res.ok) {
         // HTTP hatası varsa
         const errorData = await res.json();
-        throw new Error(errorData.message || "Lobiye katılım başarısız.");
+        throw new Error(errorData.message || "Failed to join the lobby.");
       }
 
       const data = await res.json();
       if (data.success) {
         // Katılım başarılıysa, lobi sayfasına yönlendir
-        console.log(`Lobiye başarıyla katılma isteği gönderildi, kod: ${lobbyCode}`);
-        // localStorage.setItem("playerName", name.trim()); // Zaten handleNameChange içinde yapılıyor
         router.push(`/lobby/${lobbyCode.trim().toUpperCase()}`);
       } else {
         // Sunucudan success: false dönerse
-        setError(data.message || "Lobi bulunamadı veya katılım başarısız.");
+        setError(data.message || "Lobby not found or join failed.");
       }
     } catch (err: any) {
-      console.error("Lobiye katılma hatası:", err);
-      setError(err.message || "Lobiye katılırken bir hata oluştu.");
+      console.error("Lobby join error:", err);
+      setError(err.message || "An error occurred while joining the lobby.");
     }
   };
 
   return (
     <div className="flex flex-col gap-4">
-      {/* İsim Girişi */}
+      {/* Name Input */}
       <input
         type="text"
-        placeholder="İsminiz"
+        placeholder="Your Name"
         className="border-2 border-blue-500 rounded-xl p-3 focus:ring-2 focus:ring-blue-400 focus:border-blue-500 bg-white text-blue-900 font-bold shadow-md placeholder-blue-400 transition duration-200"
         value={name}
         onChange={handleNameChange}
@@ -143,19 +135,19 @@ export default function JoinOrCreateLobbyForm() {
         required
       />
 
-      {/* Lobi Kur Butonu */}
+      {/* Create Lobby Button */}
       <button
         onClick={handleCreate}
         className="bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold shadow transition duration-200 disabled:opacity-50"
         disabled={!name.trim()} // İsim boşsa pasif yap
       >
-        Lobi Kur
+        Create Lobby
       </button>
 
-      {/* Lobi Kodu Girişi */}
+      {/* Lobby Code Input */}
       <input
         type="text"
-        placeholder="Lobi Kodu"
+        placeholder="Lobby Code"
         className="border-2 border-pink-500 rounded-xl p-3 focus:ring-2 focus:ring-pink-400 focus:border-pink-500 bg-white text-pink-900 font-bold shadow-md placeholder-pink-400 transition duration-200 uppercase tracking-wider"
         value={lobbyCode}
         onChange={(e) => {
@@ -166,13 +158,13 @@ export default function JoinOrCreateLobbyForm() {
         required
       />
 
-      {/* Lobiye Katıl Butonu */}
+      {/* Join Lobby Button */}
       <button
         onClick={handleJoin}
         className="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold shadow transition duration-200 disabled:opacity-50"
         disabled={!name.trim() || !lobbyCode.trim()} // İsim veya lobi kodu boşsa pasif yap
       >
-        Lobiye Katıl
+        Join Lobby
       </button>
 
       {/* Hata Mesajı */}

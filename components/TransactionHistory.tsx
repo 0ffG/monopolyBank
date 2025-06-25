@@ -31,20 +31,20 @@ export default function TransactionHistory({ transactions, players, isOwner, lob
 
   return (
      <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl backdrop-blur-sm">
-        <h2 className="text-2xl font-bold mb-6 text-slate-200">İşlem Geçmişi</h2>
+        <h2 className="text-2xl font-bold mb-6 text-slate-200">Transaction History</h2>
         {transactions.length === 0 ? (
-            <p className="text-sm text-center py-4 text-slate-400">Henüz işlem yapılmadı.</p>
+            <p className="text-sm text-center py-4 text-slate-400">No transactions yet.</p>
         ) : (
             <ul className="space-y-3 h-96 overflow-y-auto pr-2">
             {[...transactions].reverse().map((t) => { // En yeni işlem en üstte
                 const { icon, color } = getTransactionStyle(t.type);
                 let text = "";
                 if (t.type === "add") {
-                    text = <><span className="font-semibold">{nameOf(t.to)}</span> bankadan <span className="font-bold">${t.amount.toLocaleString()}</span> aldı.</>;
+                    text = <><span className="font-semibold">{nameOf(t.to)}</span> received <span className="font-bold">${t.amount.toLocaleString()}</span> from the bank.</>;
                 } else if (t.type === "subtract") {
-                    text = <><span className="font-semibold">{nameOf(t.from)}</span> bankaya <span className="font-bold">${t.amount.toLocaleString()}</span> ödedi.</>;
+                    text = <><span className="font-semibold">{nameOf(t.from)}</span> paid <span className="font-bold">${t.amount.toLocaleString()}</span> to the bank.</>;
                 } else {
-                    text = <><span className="font-semibold">{nameOf(t.from)}</span>, <span className="font-semibold">{nameOf(t.to)}</span> oyuncusuna <span className="font-bold">${t.amount.toLocaleString()}</span> gönderdi.</>;
+                    text = <><span className="font-semibold">{nameOf(t.from)}</span> sent <span className="font-semibold">{nameOf(t.to)}</span> <span className="font-bold">${t.amount.toLocaleString()}</span>.</>;
                 }
                 return (
                 <li key={t.id} className="flex justify-between items-center bg-slate-700/70 p-3 rounded-lg transition-colors hover:bg-slate-700">
@@ -56,9 +56,9 @@ export default function TransactionHistory({ transactions, players, isOwner, lob
                     <button 
                         className="text-red-700 hover:text-white text-xs font-extrabold transition-colors opacity-90 hover:opacity-100 bg-red-200 hover:bg-red-500 px-3 py-1 rounded shadow"
                         onClick={() => handleDelete(t.id)}
-                        title="Bu işlemi sil"
+                        title="Delete this transaction"
                     >
-                        SİL
+                        DELETE
                     </button>
                     )}
                 </li>

@@ -40,12 +40,12 @@ export default function PlayerList({ players, isOwner, lobbyCode, owner }: Props
           className="py-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-100 rounded-lg flex items-center justify-between shadow-md border-2 border-blue-100"
         >
           <span className="font-bold text-indigo-800 text-lg drop-shadow">
-            {player.name && player.name.trim() !== "" ? player.name : "İsimsiz Oyuncu"}
+            {player.name && player.name.trim() !== "" ? player.name : "Unnamed Player"}
           </span>
           <div className="flex items-center gap-1">
             {player.name === owner && (
               <span className="text-base text-purple-700 font-extrabold bg-purple-100 px-3 py-1 rounded-full shadow mr-2">
-                Kurucu
+                Host
               </span>
             )}
             {isOwner && (

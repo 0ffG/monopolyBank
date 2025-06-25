@@ -11,7 +11,7 @@ type Props = {
 export default function MoneyDisplay({ players, currentTurn, myId }: Props) {
   return (
     <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl backdrop-blur-sm">
-        <h2 className="text-2xl font-bold mb-6 text-slate-200">Oyuncular</h2>
+        <h2 className="text-2xl font-bold mb-6 text-slate-200">Players</h2>
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
           {players.map((p, idx) => (
             <div
@@ -28,7 +28,7 @@ export default function MoneyDisplay({ players, currentTurn, myId }: Props) {
             >
               <p className="font-bold text-xl text-white truncate">
                 {p.name}
-                {p.id === myId && " (Siz)"} {/* Kendimizi belirtelim */}
+                {p.id === myId && " (You)"}
               </p>
               <p className="text-3xl font-mono text-cyan-300 font-semibold tracking-wider">${p.balance.toLocaleString()}</p>
             </div>
