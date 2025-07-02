@@ -32,6 +32,10 @@ export default function PlayerList({ players, isOwner, lobbyCode, owner }: Props
     });
   };
 
+  const kick = (playerId: string) => {
+    socket.emit("kick-player", { code: lobbyCode, playerId });
+  };
+
   return (
     <ul className="mb-6 space-y-2">
       {order.map((player, i) => (
@@ -64,6 +68,15 @@ export default function PlayerList({ players, isOwner, lobbyCode, owner }: Props
                 >
                   ▼
                 </button>
+                {player.name !== owner && (
+                  <button
+                    className="ml-1 px-2 text-sm border rounded font-bold text-red-700 bg-red-200 hover:bg-red-300 transition-colors"
+                    onClick={() => kick(player.id)}
+                    title="Oyuncuyu at"
+                  >
+                    ❌
+                  </button>
+                )}
               </>
             )}
           </div>

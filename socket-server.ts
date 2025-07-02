@@ -221,6 +221,35 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on(
+    "kick-player",
+    ({ code, playerId }: { code: string; playerId: string }) => {
+      const lobby = lobbies[code];
+      if (!lobby) return;
+      const ownerPlayer = lobby.players.find((p) => p.name === lobby.owner);
+      if (!ownerPlayer || ownerPlayer.id !== socket.id) return;
+      if (playerId === ownerPlayer.id) return;
+      const playerExists = lobby.players.some((p) => p.id === playerId);
+      if (!playerExists) return;
+
+      lobby.players = lobby.players.filter((p) => p.id !== playerId);
+
+      const kickedSocket = io.sockets.sockets.get(playerId);
+      if (kickedSocket) {
+        kickedSocket.leave(code);
+        kickedSocket.emit("kicked", { code });
+      }
+
+      delete socketLobbyMap[playerId];
+
+      io.to(code).emit("lobby-updated", {
+        code,
+        players: lobby.players,
+        owner: lobby.owner,
+      });
+    }
+  );
+
   // Bir soket bağlantısı kesildiğinde
   socket.on("disconnect", () => {
     const lobbyCode = socketLobbyMap[socket.id];

@@ -77,9 +77,15 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
       router.push("/");
     };
 
+    const handleKicked = () => {
+      alert("Lobiden atıldınız.");
+      router.push("/");
+    };
+
     socket.on("lobby-updated", handleLobbyUpdate);
     socket.on("game-started", handleGameStarted);
     socket.on("join-error", handleJoinError);
+    socket.on("kicked", handleKicked);
 
     const handleConnect = () => {
       socket.emit("join-lobby", { name: playerName, code: lobbyCode });
@@ -101,6 +107,7 @@ export default function LobbyClient({ lobbyCode }: { lobbyCode: string }) {
       socket.off("lobby-updated", handleLobbyUpdate);
       socket.off("game-started", handleGameStarted);
       socket.off("join-error", handleJoinError);
+      socket.off("kicked", handleKicked);
     };
   }, [playerName, lobbyCode, router]); // playerName ve router bağımlılık olarak eklendi
 
