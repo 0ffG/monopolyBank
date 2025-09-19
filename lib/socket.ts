@@ -1,4 +1,3 @@
-// lib/socket.ts
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
@@ -10,7 +9,7 @@ export const getSocket = (): Socket => {
     });
 
     socket.on("connect", () => {
-      // connection established
+      console.log("✅ Socket bağlandı! ID:", socket.id);
     });
 
     socket.on("connect_error", (err) => {

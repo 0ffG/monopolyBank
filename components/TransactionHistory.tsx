@@ -1,71 +1,77 @@
 "use client";
 
-import { Transaction, GamePlayer } from "@/lib/gameLogic";
-import { getSocket } from "@/lib/socket"; // getSocket'ı baştan import edelim
+import { useEffect, useState } from "react";
+import { getSocket } from "../lib/socket";
 
-type Props = {
-  transactions: Transaction[];
-  players: GamePlayer[];
-  isOwner: boolean;
-  lobbyCode: string;
-};
-
-// İşlem türüne göre ikon ve renk belirleyen yardımcı fonksiyon
-const getTransactionStyle = (type: Transaction['type']) => {
-    switch(type) {
-        case 'add': return { icon: '➕', color: 'text-teal-400' };
-        case 'subtract': return { icon: '➖', color: 'text-orange-400' };
-        case 'transfer': return { icon: '✈️', color: 'text-blue-400' };
-        default: return { icon: '▪️', color: 'text-slate-400' };
-    }
+interface Transaction {
+  id: string;
+  action: string;
+  details: any;
 }
 
-export default function TransactionHistory({ transactions, players, isOwner, lobbyCode }: Props) {
+interface Props {
+  isHost: boolean;
+  lobbyCode: string;
+}
+
+export default function TransactionHistory({ isHost, lobbyCode }: Props) {
+  const [history, setHistory] = useState<Transaction[]>([]);
   const socket = getSocket();
 
-  const nameOf = (id?: string) => players.find(p => p.id === id)?.name || "Bilinmeyen Oyuncu";
+  useEffect(() => {
+    socket.on("transaction-history", (transactions: Transaction[]) => {
+      setHistory(transactions);
+    });
 
-  const handleDelete = (id: string) => {
-    socket.emit("delete-transaction", { code: lobbyCode, id });
+    return () => {
+      socket.off("transaction-history");
+    };
+  }, [socket]);
+
+  const handleUndo = () => {
+    socket.emit("undo-transaction", { code: lobbyCode });
   };
 
   return (
-     <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl backdrop-blur-sm">
-        <h2 className="text-2xl font-bold mb-6 text-slate-200">İşlem Geçmişi</h2>
-        {transactions.length === 0 ? (
-            <p className="text-sm text-center py-4 text-slate-400">Henüz işlem yapılmadı.</p>
-        ) : (
-            <ul className="space-y-3 h-96 overflow-y-auto pr-2">
-            {[...transactions].reverse().map((t) => { // En yeni işlem en üstte
-                const { icon, color } = getTransactionStyle(t.type);
-                let text = "";
-                if (t.type === "add") {
-                    text = <><span className="font-semibold">{nameOf(t.to)}</span> bankadan <span className="font-bold">${t.amount.toLocaleString()}</span> aldı.</>;
-                } else if (t.type === "subtract") {
-                    text = <><span className="font-semibold">{nameOf(t.from)}</span> bankaya <span className="font-bold">${t.amount.toLocaleString()}</span> ödedi.</>;
-                } else {
-                    text = <><span className="font-semibold">{nameOf(t.from)}</span>, <span className="font-semibold">{nameOf(t.to)}</span> oyuncusuna <span className="font-bold">${t.amount.toLocaleString()}</span> gönderdi.</>;
-                }
-                return (
-                <li key={t.id} className="flex justify-between items-center bg-slate-700/70 p-3 rounded-lg transition-colors hover:bg-slate-700">
-                    <div className="flex items-center gap-3">
-                        <span className={`text-xl ${color}`}>{icon}</span>
-                        <p className="text-sm text-slate-300">{text}</p>
-                    </div>
-                    {isOwner && (
-                    <button 
-                        className="text-red-700 hover:text-white text-xs font-extrabold transition-colors opacity-90 hover:opacity-100 bg-red-200 hover:bg-red-500 px-3 py-1 rounded shadow"
-                        onClick={() => handleDelete(t.id)}
-                        title="Bu işlemi sil"
-                    >
-                        SİL
-                    </button>
-                    )}
-                </li>
-                );
-            })}
-            </ul>
-        )}
-     </div>
+    <div className="p-4 border rounded space-y-2">
+      <h3 className="font-bold">Transaction History</h3>
+      {history.length === 0 ? (
+        <p>Henüz işlem yapılmadı.</p>
+      ) : (
+        <>
+          <ul className="list-disc ml-5 space-y-1">
+            {history.map((tx) => (
+              <li key={tx.id}>
+                {tx.action === "transfer" && (
+                  <span>
+                    {tx.details.from} → {tx.details.to} : {tx.details.amount}₺
+                  </span>
+                )}
+                {tx.action === "bank-add" && (
+                  <span>
+                    Bankadan eklendi: {tx.details.amount}₺ →{" "}
+                    {tx.details.playerId}
+                  </span>
+                )}
+                {tx.action === "bank-remove" && (
+                  <span>
+                    Bankadan çıkarıldı: {tx.details.amount}₺ →{" "}
+                    {tx.details.playerId}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          {isHost && (
+            <button
+              onClick={handleUndo}
+              className="bg-yellow-500 text-white px-3 py-1 rounded mt-3"
+            >
+              Son İşlemi Geri Al
+            </button>
+          )}
+        </>
+      )}
+    </div>
   );
 }

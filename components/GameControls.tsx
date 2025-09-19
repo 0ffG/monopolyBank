@@ -1,84 +1,129 @@
 "use client";
 
 import { useState } from "react";
-import { GamePlayer } from "@/lib/gameLogic";
-import { getSocket } from "@/lib/socket";
+import { getSocket } from "../lib/socket";
 
-type Props = {
-  lobbyCode: string;
-  players: GamePlayer[];
-  meId: string;
-};
+interface GameControlsProps {
+  lobbyCode: string;      // hangi lobby’deyiz
+  currentPlayerId: string; // sıra kimde
+  myPlayerId: string;      // bu client’in ID’si
+  players: { id: string; name: string }[];
+}
 
-export default function GameControls({ lobbyCode, players, meId }: Props) {
+export default function GameControls({
+  lobbyCode,
+  currentPlayerId,
+  myPlayerId,
+  players,
+}: GameControlsProps) {
+  const [amount, setAmount] = useState(0);
+  const [targetId, setTargetId] = useState("");
   const socket = getSocket();
-  const [amount, setAmount] = useState<number | string>(100); // Başlangıç değeri
-  const [target, setTarget] = useState<string>("");
 
-  const send = (event: string, payload: any) => {
-    socket.emit(event, { code: lobbyCode, ...payload });
-    setAmount(100); // Eylem sonrası sıfırla
-  };
+  const isMyTurn = currentPlayerId === myPlayerId;
 
-  const handleAdd = () => send("add-money", { playerId: meId, amount: Number(amount) });
-  const handleSubtract = () => send("subtract-money", { playerId: meId, amount: Number(amount) });
+  // Oyuncudan oyuncuya para transferi
   const handleTransfer = () => {
-    if (!target || !amount) return;
-    send("transfer-money", { fromId: meId, toId: target, amount: Number(amount) });
+    if (!isMyTurn) return alert("Sıra sende değil!");
+    if (!targetId || amount <= 0) return alert("Hedef oyuncu ve tutar gerekli!");
+    socket.emit("transfer-money", {
+      code: lobbyCode,
+      from: myPlayerId,
+      to: targetId,
+      amount,
+    });
+    setAmount(0);
   };
 
-  const endTurn = () => socket.emit("end-turn", lobbyCode);
+  // Bankadan ekleme
+  const handleAddFromBank = () => {
+    if (!isMyTurn) return alert("Sıra sende değil!");
+    if (amount <= 0) return alert("Tutar gerekli!");
+    socket.emit("bank-action", {
+      code: lobbyCode,
+      playerId: myPlayerId,
+      amount,
+      action: "add",
+    });
+    setAmount(0);
+  };
+
+  // Bankadan çıkarma
+  const handleRemoveFromBank = () => {
+    if (!isMyTurn) return alert("Sıra sende değil!");
+    if (amount <= 0) return alert("Tutar gerekli!");
+    socket.emit("bank-action", {
+      code: lobbyCode,
+      playerId: myPlayerId,
+      amount,
+      action: "remove",
+    });
+    setAmount(0);
+  };
+
+  // Sıra bitirme
+  const handleEndTurn = () => {
+    if (!isMyTurn) return alert("Sıra sende değil!");
+    socket.emit("end-turn", { code: lobbyCode });
+  };
 
   return (
-    <div className="bg-slate-800/50 p-6 rounded-2xl shadow-2xl space-y-6 backdrop-blur-sm">
-      <h2 className="text-2xl font-bold text-slate-200">Action Menu</h2>
+    <div className="p-4 border rounded space-y-3">
+      <h3 className="font-bold">Oyun Kontrolleri</h3>
+      {isMyTurn ? (
+        <>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            placeholder="Miktar"
+            className="border p-2"
+          />
+          <select
+            value={targetId}
+            onChange={(e) => setTargetId(e.target.value)}
+            className="border p-2"
+          >
+            <option value="">Hedef Oyuncu</option>
+            {players
+              .filter((p) => p.id !== myPlayerId)
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
 
-      {/* Amount Input */}
-      <div className="space-y-3">
-        <label htmlFor="amount" className="block text-sm font-medium text-slate-400">Amount</label>
-        <input
-          id="amount"
-          type="number"
-          className="border-2 border-slate-600 bg-slate-900 p-3 rounded-lg w-full text-white text-lg font-mono focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
-          placeholder="0"
-        />
-        <div className="flex gap-2">
-          {[100, 500, 1000, 5000].map((val) => (
+          <div className="space-x-2">
             <button
-              key={val}
-              type="button"
-              onClick={() => setAmount(Number(amount || 0) + val)}
-              className="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded-full transition-colors font-semibold"
+              onClick={handleTransfer}
+              className="bg-blue-500 text-white px-3 py-1 rounded"
             >
-              +{val.toLocaleString()}
+              Para Transferi
             </button>
-          ))}
-        </div>
-      </div>
-      
-      {/* Bank Actions */}
-      <div className="flex gap-4">
-        <button onClick={handleAdd} className="w-full bg-teal-500 hover:bg-teal-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Receive from Bank</button>
-        <button onClick={handleSubtract} className="w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Pay to Bank</button>
-      </div>
-
-      {/* Transfer Actions */}
-      <div className="space-y-3">
-        <select value={target} onChange={(e) => setTarget(e.target.value)} className="w-full border-2 border-slate-600 bg-slate-900 p-3 rounded-lg text-white focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition">
-          <option value="">Select Player...</option>
-          {players.filter(p => p.id !== meId).map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
-        <button onClick={handleTransfer} disabled={!target} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105 disabled:bg-slate-700 disabled:cursor-not-allowed disabled:transform-none">Transfer</button>
-      </div>
-      
-      <div className="border-t border-slate-700 my-4"></div>
-
-      {/* End Turn */}
-      <button onClick={endTurn} className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform hover:scale-105">End Turn</button>
+            <button
+              onClick={handleAddFromBank}
+              className="bg-green-500 text-white px-3 py-1 rounded"
+            >
+              Bankadan Ekle
+            </button>
+            <button
+              onClick={handleRemoveFromBank}
+              className="bg-red-500 text-white px-3 py-1 rounded"
+            >
+              Bankadan Çıkar
+            </button>
+          </div>
+          <button
+            onClick={handleEndTurn}
+            className="bg-gray-600 text-white px-3 py-1 rounded mt-2"
+          >
+            Sırayı Bitir
+          </button>
+        </>
+      ) : (
+        <p>Şu an senin sıran değil.</p>
+      )}
     </div>
   );
 }

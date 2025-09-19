@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "server": "tsc -p tsconfig.server.json && node dist/socket-server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -20,12 +21,12 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/express": "^5.0.3",
-    "@types/node": "^20",
+    "@types/node": "^20.19.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/socket.io": "^3.0.1",
-    "@types/socket.io-client": "^1.4.36",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
