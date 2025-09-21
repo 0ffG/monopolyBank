@@ -9,10 +9,20 @@ interface Player {
   name: string;
 }
 
+interface GameSettings {
+  maxPlayers: number;
+  gameMode: string;
+  initialBalance: number; // Added missing property
+  firstPlayer: string; // Added missing property
+  turnOrder: string[]; // Added missing property
+  quickButtons: [number, number, number]; // Updated type to match expected type
+}
+
 interface LobbyType {
   code: string;
   hostId: string;
   players: Player[];
+  gameSettings: GameSettings; // Added the missing property
 }
 
 export default function LobbyClient() {
