@@ -4,10 +4,11 @@ import { useState } from "react";
 import { getSocket } from "../lib/socket";
 
 interface GameControlsProps {
-  lobbyCode: string;      // hangi lobby’deyiz
+  lobbyCode: string;      // hangi lobby'deyiz
   currentPlayerId: string; // sıra kimde
-  myPlayerId: string;      // bu client’in ID’si
+  myPlayerId: string;      // bu client'in ID'si
   players: { id: string; name: string }[];
+  quickButtons?: [number, number, number]; // Hızlı transfer butonları
 }
 
 export default function GameControls({
@@ -15,12 +16,18 @@ export default function GameControls({
   currentPlayerId,
   myPlayerId,
   players,
+  quickButtons = [50, 100, 200], // Varsayılan değerler
 }: GameControlsProps) {
   const [amount, setAmount] = useState(0);
   const [targetId, setTargetId] = useState("");
   const socket = getSocket();
 
   const isMyTurn = currentPlayerId === myPlayerId;
+
+  // Hızlı miktar ekleme
+  const addQuickAmount = (quickAmount: number) => {
+    setAmount(prev => prev + quickAmount);
+  };
 
   // Oyuncudan oyuncuya para transferi
   const handleTransfer = () => {
@@ -72,17 +79,37 @@ export default function GameControls({
       <h3 className="font-bold">Oyun Kontrolleri</h3>
       {isMyTurn ? (
         <>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            placeholder="Miktar"
-            className="border p-2"
-          />
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Miktar:</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              placeholder="Miktar"
+              className="border p-2 w-full"
+            />
+            
+            {/* Hızlı Transfer Butonları */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">Hızlı Miktarlar:</label>
+              <div className="flex space-x-2">
+                {quickButtons.map((quickAmount, index) => (
+                  <button
+                    key={index}
+                    onClick={() => addQuickAmount(quickAmount)}
+                    className="bg-orange-500 text-white px-3 py-1 rounded text-sm"
+                  >
+                    +{quickAmount}₺
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <select
             value={targetId}
             onChange={(e) => setTargetId(e.target.value)}
-            className="border p-2"
+            className="border p-2 w-full"
           >
             <option value="">Hedef Oyuncu</option>
             {players
@@ -116,7 +143,7 @@ export default function GameControls({
           </div>
           <button
             onClick={handleEndTurn}
-            className="bg-gray-600 text-white px-3 py-1 rounded mt-2"
+            className="bg-gray-600 text-white px-3 py-1 rounded mt-2 w-full"
           >
             Sırayı Bitir
           </button>

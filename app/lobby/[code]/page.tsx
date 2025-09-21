@@ -10,10 +10,18 @@ interface Player {
   name: string;
 }
 
+interface GameSettings {
+  initialBalance: number;
+  firstPlayer: string;
+  turnOrder: string[];
+  quickButtons: [number, number, number];
+}
+
 interface LobbyType {
   code: string;
   hostId: string;
   players: Player[];
+  gameSettings: GameSettings;
 }
 
 export default function LobbyPage() {

@@ -18,16 +18,25 @@ interface Player {
   name: string;
 }
 
+interface GameSettings {
+  initialBalance: number;
+  firstPlayer: string; // Player ID
+  turnOrder: string[]; // Player IDs in order
+  quickButtons: [number, number, number]; // 3 quick transfer amounts
+}
+
 interface Lobby {
   code: string;
   hostId: string;
   players: Player[];
+  gameSettings: GameSettings;
 }
 
 interface GameState {
   currentTurn: string;
   balances: Record<string, number>;
   history: { id: string; action: string; details: any }[];
+  gameSettings: GameSettings;
 }
 
 // --- In-memory store ---
@@ -50,6 +59,12 @@ io.on("connection", (socket) => {
       code,
       hostId: socket.id,
       players: [{ id: socket.id, name: playerName }],
+      gameSettings: {
+        initialBalance: 1500,
+        firstPlayer: socket.id,
+        turnOrder: [socket.id],
+        quickButtons: [50, 100, 200],
+      },
     };
     lobbies[code] = newLobby;
 
@@ -59,7 +74,7 @@ io.on("connection", (socket) => {
     io.to(code).emit("lobby-updated", newLobby);
   });
 
-  // ✅ Lobby’ye katılma
+  // ✅ Lobby'ye katılma
   socket.on("join-lobby", ({ code, name }) => {
     const lobby = lobbies[code];
     if (!lobby) {
@@ -70,11 +85,48 @@ io.on("connection", (socket) => {
     lobby.players.push({ id: socket.id, name });
     socket.join(code);
 
+    // Yeni oyuncu sıra düzenine ekleniyor
+    lobby.gameSettings.turnOrder.push(socket.id);
+
     console.log(`👤 ${name} lobiye katıldı (${code})`);
     io.to(code).emit("lobby-updated", lobby);
   });
 
-  // ✅ Mevcut lobby state’i isteme
+  // ✅ Oyun ayarlarını güncelleme (sadece host)
+  socket.on("update-game-settings", ({ code, gameSettings }) => {
+    const lobby = lobbies[code];
+    if (!lobby || lobby.hostId !== socket.id) return;
+
+    lobby.gameSettings = { ...lobby.gameSettings, ...gameSettings };
+    io.to(code).emit("lobby-updated", lobby);
+  });
+
+  // ✅ Oyuncu atma (sadece host)
+  socket.on("kick-player", ({ code, playerId }) => {
+    const lobby = lobbies[code];
+    if (!lobby || lobby.hostId !== socket.id) return;
+
+    const playerIndex = lobby.players.findIndex((p) => p.id === playerId);
+    if (playerIndex !== -1) {
+      lobby.players.splice(playerIndex, 1);
+      
+      // Sıra düzeninden de çıkar
+      const turnIndex = lobby.gameSettings.turnOrder.indexOf(playerId);
+      if (turnIndex !== -1) {
+        lobby.gameSettings.turnOrder.splice(turnIndex, 1);
+      }
+
+      // Eğer atılan oyuncu ilk oyuncuysa, yeni ilk oyuncuyu ayarla
+      if (lobby.gameSettings.firstPlayer === playerId && lobby.players.length > 0) {
+        lobby.gameSettings.firstPlayer = lobby.players[0].id;
+      }
+
+      io.to(code).emit("lobby-updated", lobby);
+      io.to(playerId).emit("error-message", "Oyundan atıldınız!");
+    }
+  });
+
+  // ✅ Mevcut lobby state'i isteme
   socket.on("get-lobby-state", ({ code }) => {
     const lobby = lobbies[code];
     console.log("📤 Lobby state istendi:", code, lobby);
@@ -90,13 +142,14 @@ io.on("connection", (socket) => {
 
     const balances: Record<string, number> = {};
     lobby.players.forEach((p) => {
-      balances[p.id] = 1500;
+      balances[p.id] = lobby.gameSettings.initialBalance;
     });
 
     games[code] = {
-      currentTurn: lobby.players[0].id,
+      currentTurn: lobby.gameSettings.firstPlayer,
       balances,
       history: [],
+      gameSettings: lobby.gameSettings,
     };
 
     console.log("🎮 Oyun başlatıldı:", code, games[code]);
@@ -107,7 +160,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  // ✅ Mevcut game state’i isteme
+  // ✅ Mevcut game state'i isteme
   socket.on("get-game-state", ({ code }) => {
     const game = games[code];
     console.log("📤 Game state istendi:", code, game);
@@ -176,11 +229,11 @@ io.on("connection", (socket) => {
     const game = games[code];
     if (!lobby || !game) return;
 
-    const playerIds = lobby.players.map((p) => p.id);
-    const currentIndex = playerIds.indexOf(game.currentTurn);
-    const nextIndex = (currentIndex + 1) % playerIds.length;
+    const turnOrder = game.gameSettings.turnOrder;
+    const currentIndex = turnOrder.indexOf(game.currentTurn);
+    const nextIndex = (currentIndex + 1) % turnOrder.length;
 
-    game.currentTurn = playerIds[nextIndex];
+    game.currentTurn = turnOrder[nextIndex];
 
     io.to(code).emit("game-updated", { ...game, code });
   });
@@ -230,6 +283,13 @@ io.on("connection", (socket) => {
       const index = lobby.players.findIndex((p) => p.id === socket.id);
       if (index !== -1) {
         lobby.players.splice(index, 1);
+        
+        // Sıra düzeninden de çıkar
+        const turnIndex = lobby.gameSettings.turnOrder.indexOf(socket.id);
+        if (turnIndex !== -1) {
+          lobby.gameSettings.turnOrder.splice(turnIndex, 1);
+        }
+        
         io.to(code).emit("lobby-updated", lobby);
       }
     }

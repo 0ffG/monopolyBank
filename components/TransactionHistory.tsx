@@ -9,12 +9,18 @@ interface Transaction {
   details: any;
 }
 
+interface Player {
+  id: string;
+  name: string;
+}
+
 interface Props {
   isHost: boolean;
   lobbyCode: string;
+  players: Player[];
 }
 
-export default function TransactionHistory({ isHost, lobbyCode }: Props) {
+export default function TransactionHistory({ isHost, lobbyCode, players }: Props) {
   const [history, setHistory] = useState<Transaction[]>([]);
   const socket = getSocket();
 
@@ -32,6 +38,11 @@ export default function TransactionHistory({ isHost, lobbyCode }: Props) {
     socket.emit("undo-transaction", { code: lobbyCode });
   };
 
+  const getPlayerName = (id: string) => {
+    const player = players.find((p) => p.id === id);
+    return player ? player.name : "Bilinmeyen Oyuncu";
+  };
+
   return (
     <div className="p-4 border rounded space-y-2">
       <h3 className="font-bold">Transaction History</h3>
@@ -44,19 +55,17 @@ export default function TransactionHistory({ isHost, lobbyCode }: Props) {
               <li key={tx.id}>
                 {tx.action === "transfer" && (
                   <span>
-                    {tx.details.from} → {tx.details.to} : {tx.details.amount}₺
+                    {getPlayerName(tx.details.from)} → {getPlayerName(tx.details.to)} : {tx.details.amount}₺
                   </span>
                 )}
                 {tx.action === "bank-add" && (
                   <span>
-                    Bankadan eklendi: {tx.details.amount}₺ →{" "}
-                    {tx.details.playerId}
+                    Bankadan eklendi: {tx.details.amount}₺ → {getPlayerName(tx.details.playerId)}
                   </span>
                 )}
                 {tx.action === "bank-remove" && (
                   <span>
-                    Bankadan çıkarıldı: {tx.details.amount}₺ →{" "}
-                    {tx.details.playerId}
+                    Bankadan çıkarıldı: {tx.details.amount}₺ → {getPlayerName(tx.details.playerId)}
                   </span>
                 )}
               </li>

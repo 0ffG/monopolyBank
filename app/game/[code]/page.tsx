@@ -12,17 +12,26 @@ interface Player {
   name: string;
 }
 
+interface GameSettings {
+  initialBalance: number;
+  firstPlayer: string;
+  turnOrder: string[];
+  quickButtons: [number, number, number];
+}
+
 interface GameState {
   currentTurn: string;
   balances: Record<string, number>;
   history: { id: string; action: string; details: any }[];
-  code: string; // ✅ artık backend’den geliyor
+  code: string;
+  gameSettings: GameSettings;
 }
 
 interface LobbyType {
   code: string;
   hostId: string;
   players: Player[];
+  gameSettings: GameSettings;
 }
 
 export default function GamePage() {
@@ -37,7 +46,7 @@ export default function GamePage() {
   useEffect(() => {
     if (!code) return;
 
-    // ✅ Sayfa açıldığında mevcut state’i backend’den iste
+    // ✅ Sayfa açıldığında mevcut state'i backend'den iste
     socket.emit("get-lobby-state", { code });
     socket.emit("get-game-state", { code });
 
@@ -57,7 +66,18 @@ export default function GamePage() {
       setGame((prev) =>
         prev
           ? { ...prev, history }
-          : { currentTurn: "", balances: {}, history, code }
+          : { 
+              currentTurn: "", 
+              balances: {}, 
+              history, 
+              code,
+              gameSettings: {
+                initialBalance: 1500,
+                firstPlayer: "",
+                turnOrder: [],
+                quickButtons: [50, 100, 200]
+              }
+            }
       );
     });
 
@@ -68,7 +88,7 @@ export default function GamePage() {
     };
   }, [socket, code]);
 
-  // ✅ Eğer URL’de code yoksa
+  // ✅ Eğer URL'de code yoksa
   if (!code) {
     return (
       <main className="flex items-center justify-center h-screen">
@@ -103,8 +123,9 @@ export default function GamePage() {
         <GameControls
           lobbyCode={lobby.code}
           currentPlayerId={game.currentTurn}
-          myPlayerId={socket.id}
+          myPlayerId={socket.id || ""}
           players={lobby.players}
+          quickButtons={game.gameSettings.quickButtons}
         />
       </div>
 
@@ -113,6 +134,7 @@ export default function GamePage() {
         <TransactionHistory
           isHost={socket.id === lobby.hostId}
           lobbyCode={lobby.code}
+          players={lobby.players}
         />
       </div>
     </main>
