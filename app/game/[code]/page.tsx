@@ -3,103 +3,118 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getSocket } from "../../../lib/socket";
-
 import PlayerList from "../../../components/PlayerList";
 import GameControls from "../../../components/GameControls";
 import TransactionHistory from "../../../components/TransactionHistory";
-
-interface GameState {
-  currentTurn: string;
-  balances: Record<string, number>;
-  history: any[];
-}
 
 interface Player {
   id: string;
   name: string;
 }
 
-interface Lobby {
+interface GameState {
+  currentTurn: string;
+  balances: Record<string, number>;
+  history: { id: string; action: string; details: any }[];
+  code: string; // ✅ artık backend’den geliyor
+}
+
+interface LobbyType {
   code: string;
   hostId: string;
   players: Player[];
 }
 
 export default function GamePage() {
-  const { code } = useParams(); // URL'deki lobby code
+  const params = useParams();
+  const code = Array.isArray(params.code) ? params.code[0] : params.code;
+
   const socket = getSocket();
 
-  const [lobby, setLobby] = useState<Lobby | null>(null);
+  const [lobby, setLobby] = useState<LobbyType | null>(null);
   const [game, setGame] = useState<GameState | null>(null);
-  const [myId, setMyId] = useState<string>("");
 
   useEffect(() => {
-    // socket.id'yi öğrenmek için
-    socket.on("connect", () => {
-      setMyId(socket.id);
-    });
+    if (!code) return;
 
-    // lobby güncellemelerini dinle
-    socket.on("lobby-updated", (updatedLobby: Lobby) => {
+    // ✅ Sayfa açıldığında mevcut state’i backend’den iste
+    socket.emit("get-lobby-state", { code });
+    socket.emit("get-game-state", { code });
+
+    // Lobby güncelleme eventleri
+    socket.on("lobby-updated", (updatedLobby: LobbyType) => {
+      console.log("📥 Lobby geldi:", updatedLobby);
       setLobby(updatedLobby);
     });
 
-    // oyun güncellemelerini dinle
+    // Game state güncelleme eventleri
     socket.on("game-updated", (updatedGame: GameState) => {
+      console.log("📥 Oyun durumu geldi:", updatedGame);
       setGame(updatedGame);
     });
 
-    // hata mesajlarını dinle
-    socket.on("error-message", (msg: string) => {
-      alert(msg);
+    socket.on("transaction-history", (history) => {
+      setGame((prev) =>
+        prev
+          ? { ...prev, history }
+          : { currentTurn: "", balances: {}, history, code }
+      );
     });
 
     return () => {
-      socket.off("connect");
       socket.off("lobby-updated");
       socket.off("game-updated");
-      socket.off("error-message");
+      socket.off("transaction-history");
     };
-  }, [socket]);
+  }, [socket, code]);
 
-  if (!lobby) {
-    return <div>⏳ Lobby bilgisi yükleniyor...</div>;
-  }
-
-  if (!game) {
+  // ✅ Eğer URL’de code yoksa
+  if (!code) {
     return (
-      <div className="p-4">
-        <h2 className="text-xl font-bold mb-2">Lobby Kodu: {lobby.code}</h2>
-        <PlayerList players={lobby.players} />
-        {lobby.hostId === myId ? (
-          <p>🎮 Host olarak Start Game butonuna basabilirsin (Lobby ekranında).</p>
-        ) : (
-          <p>⌛ Oyun başlaması için host’u bekliyorsun...</p>
-        )}
-      </div>
+      <main className="flex items-center justify-center h-screen">
+        <p>❌ Geçersiz oyun kodu!</p>
+      </main>
     );
   }
 
+  // ✅ Lobby veya game state henüz gelmediyse
+  if (!lobby || !game) {
+    return (
+      <main className="flex items-center justify-center h-screen">
+        <p>🔄 Oyun yükleniyor ({code})...</p>
+      </main>
+    );
+  }
+
+  // ✅ Oyun ekranı render
   return (
-    <div className="grid grid-cols-3 gap-4 p-4">
-      <div className="col-span-1">
-        <h2 className="text-xl font-bold mb-2">Oyuncular</h2>
-        <PlayerList players={lobby.players} balances={game.balances} />
+    <main className="p-6 grid grid-cols-3 gap-4 h-screen">
+      {/* Sol → Oyuncular */}
+      <div className="col-span-1 border rounded p-4">
+        <PlayerList
+          players={lobby.players}
+          balances={game.balances}
+          currentTurn={game.currentTurn}
+        />
       </div>
-      <div className="col-span-1">
+
+      {/* Orta → Oyun Kontrolleri */}
+      <div className="col-span-1 border rounded p-4">
         <GameControls
           lobbyCode={lobby.code}
           currentPlayerId={game.currentTurn}
-          myPlayerId={myId}
+          myPlayerId={socket.id}
           players={lobby.players}
         />
       </div>
-      <div className="col-span-1">
+
+      {/* Sağ → Transaction History */}
+      <div className="col-span-1 border rounded p-4">
         <TransactionHistory
-          isHost={lobby.hostId === myId}
+          isHost={socket.id === lobby.hostId}
           lobbyCode={lobby.code}
         />
       </div>
-    </div>
+    </main>
   );
 }

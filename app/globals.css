@@ -1,3 +1,11 @@
+/* globals.css */
+
+.custom-antialiased {
+  font-family: Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 @import "tailwindcss";
 @tailwind base;
 @tailwind components;

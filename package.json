@@ -3,30 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "server": "tsc -p tsconfig.server.json && node dist/socket-server.js"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "next": "15.3.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "express": "^4.19.2",
+    "next": "^14.2.32",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/express": "^5.0.3",
-    "@types/node": "^20.19.17",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/socket.io": "^3.0.1",
-    "tailwindcss": "^4",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.16.11",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.6.3"
   }
 }
