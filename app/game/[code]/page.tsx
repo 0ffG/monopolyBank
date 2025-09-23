@@ -91,8 +91,12 @@ export default function GamePage() {
   // ✅ Eğer URL'de code yoksa
   if (!code) {
     return (
-      <main className="flex items-center justify-center h-screen">
-        <p>❌ Geçersiz oyun kodu!</p>
+      <main className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center transform transition-all duration-500">
+          <div className="text-6xl mb-6">❌</div>
+          <p className="text-2xl font-bold text-red-600">Geçersiz oyun kodu!</p>
+          <p className="text-lg text-gray-500 mt-2">Lütfen geçerli bir oyun koduna sahip olduğunuzdan emin olun.</p>
+        </div>
       </main>
     );
   }
@@ -100,42 +104,50 @@ export default function GamePage() {
   // ✅ Lobby veya game state henüz gelmediyse
   if (!lobby || !game) {
     return (
-      <main className="flex items-center justify-center h-screen">
-        <p>🔄 Oyun yükleniyor ({code})...</p>
+      <main className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center transform transition-all duration-500">
+          <div className="animate-spin text-6xl mb-6">🔄</div>
+          <p className="text-2xl font-bold text-blue-600">Oyun yükleniyor...</p>
+          <p className="text-lg text-gray-500 mt-2">Kod: <span className="font-mono font-bold">{code}</span></p>
+        </div>
       </main>
     );
   }
 
   // ✅ Oyun ekranı render
   return (
-    <main className="p-6 grid grid-cols-3 gap-4 h-screen">
-      {/* Sol → Oyuncular */}
-      <div className="col-span-1 border rounded p-4">
-        <PlayerList
-          players={lobby.players}
-          balances={game.balances}
-          currentTurn={game.currentTurn}
-        />
-      </div>
+    <main className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-3rem)]">
+          {/* Sol → Oyuncular */}
+          <div className="lg:col-span-1">
+            <PlayerList
+              players={lobby.players}
+              balances={game.balances}
+              currentTurn={game.currentTurn}
+            />
+          </div>
 
-      {/* Orta → Oyun Kontrolleri */}
-      <div className="col-span-1 border rounded p-4">
-        <GameControls
-          lobbyCode={lobby.code}
-          currentPlayerId={game.currentTurn}
-          myPlayerId={socket.id || ""}
-          players={lobby.players}
-          quickButtons={game.gameSettings.quickButtons}
-        />
-      </div>
+          {/* Orta → Oyun Kontrolleri */}
+          <div className="lg:col-span-1">
+            <GameControls
+              lobbyCode={lobby.code}
+              currentPlayerId={game.currentTurn}
+              myPlayerId={socket.id || ""}
+              players={lobby.players}
+              quickButtons={game.gameSettings.quickButtons}
+            />
+          </div>
 
-      {/* Sağ → Transaction History */}
-      <div className="col-span-1 border rounded p-4">
-        <TransactionHistory
-          isHost={socket.id === lobby.hostId}
-          lobbyCode={lobby.code}
-          players={lobby.players}
-        />
+          {/* Sağ → Transaction History */}
+          <div className="lg:col-span-1">
+            <TransactionHistory
+              isHost={socket.id === lobby.hostId}
+              lobbyCode={lobby.code}
+              players={lobby.players}
+            />
+          </div>
+        </div>
       </div>
     </main>
   );

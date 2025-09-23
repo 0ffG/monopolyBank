@@ -275,6 +275,61 @@ io.on("connection", (socket) => {
     io.to(code).emit("transaction-history", game.history);
   });
 
+  // ✅ Spesifik Transaction Undo (sadece host yapabilir)
+  socket.on("undo-specific-transaction", ({ code, transactionId }) => {
+    console.log("🔄 Spesifik undo isteği alındı:", { code, transactionId, socketId: socket.id });
+    
+    const lobby = lobbies[code];
+    const game = games[code];
+    if (!lobby || !game) {
+      console.log("❌ Lobby veya game bulunamadı:", { lobby: !!lobby, game: !!game });
+      return;
+    }
+
+    if (lobby.hostId !== socket.id) {
+      console.log("❌ Sadece host undo yapabilir:", { hostId: lobby.hostId, socketId: socket.id });
+      socket.emit("error-message", "Sadece host undo yapabilir!");
+      return;
+    }
+
+    // İşlemi bul
+    const transactionIndex = game.history.findIndex(tx => tx.id === transactionId);
+    if (transactionIndex === -1) {
+      console.log("❌ İşlem bulunamadı:", { transactionId, availableIds: game.history.map(tx => tx.id) });
+      socket.emit("error-message", "İşlem bulunamadı!");
+      return;
+    }
+
+    const transaction = game.history[transactionIndex];
+    console.log("✅ İşlem bulundu:", transaction);
+
+    // İşlemi geri al
+    if (transaction.action === "transfer") {
+      const { from, to, amount } = transaction.details;
+      game.balances[from] += amount;
+      game.balances[to] -= amount;
+      console.log("🔄 Transfer geri alındı:", { from, to, amount });
+    }
+    if (transaction.action === "bank-add") {
+      const { playerId, amount } = transaction.details;
+      game.balances[playerId] -= amount;
+      console.log("🔄 Bank-add geri alındı:", { playerId, amount });
+    }
+    if (transaction.action === "bank-remove") {
+      const { playerId, amount } = transaction.details;
+      game.balances[playerId] += amount;
+      console.log("🔄 Bank-remove geri alındı:", { playerId, amount });
+    }
+
+    // İşlemi geçmişten kaldır
+    game.history.splice(transactionIndex, 1);
+
+    console.log("↩️ Spesifik undo yapıldı:", transaction);
+
+    io.to(code).emit("game-updated", { ...game, code });
+    io.to(code).emit("transaction-history", game.history);
+  });
+
   // ✅ Oyuncu ayrıldığında
   socket.on("disconnect", () => {
     console.log("❌ Oyuncu ayrıldı:", socket.id);
