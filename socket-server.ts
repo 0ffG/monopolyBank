@@ -43,16 +43,16 @@ interface GameState {
 const lobbies: Record<string, Lobby> = {};
 const games: Record<string, GameState> = {};
 
-// Basit random lobby kodu üretici
+// Simple random lobby code generator
 function generateLobbyCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
 // --- Socket.IO connection ---
 io.on("connection", (socket) => {
-  console.log("🔌 Yeni bağlantı:", socket.id);
+  console.log("🔌 New connection:", socket.id);
 
-  // ✅ Lobby oluşturma
+  // ✅ Create lobby
   socket.on("create-lobby", (playerName: string) => {
     const code = generateLobbyCode();
     const newLobby: Lobby = {
@@ -69,30 +69,30 @@ io.on("connection", (socket) => {
     lobbies[code] = newLobby;
 
     socket.join(code);
-    console.log(`🎉 Yeni lobby oluşturuldu: ${code} (host: ${playerName})`);
+    console.log(`🎉 New lobby created: ${code} (host: ${playerName})`);
 
     io.to(code).emit("lobby-updated", newLobby);
   });
 
-  // ✅ Lobby'ye katılma
+  // ✅ Join lobby
   socket.on("join-lobby", ({ code, name }) => {
     const lobby = lobbies[code];
     if (!lobby) {
-      socket.emit("error-message", "Lobby bulunamadı!");
+      socket.emit("error-message", "Lobby not found!");
       return;
     }
 
     lobby.players.push({ id: socket.id, name });
     socket.join(code);
 
-    // Yeni oyuncu sıra düzenine ekleniyor
+    // Adding new player to turn order
     lobby.gameSettings.turnOrder.push(socket.id);
 
-    console.log(`👤 ${name} lobiye katıldı (${code})`);
+    console.log(`👤 ${name} joined lobby (${code})`);
     io.to(code).emit("lobby-updated", lobby);
   });
 
-  // ✅ Oyun ayarlarını güncelleme (sadece host)
+  // ✅ Update game settings (host only)
   socket.on("update-game-settings", ({ code, gameSettings }) => {
     const lobby = lobbies[code];
     if (!lobby || lobby.hostId !== socket.id) return;
@@ -101,7 +101,7 @@ io.on("connection", (socket) => {
     io.to(code).emit("lobby-updated", lobby);
   });
 
-  // ✅ Oyuncu atma (sadece host)
+  // ✅ Kick player (host only)
   socket.on("kick-player", ({ code, playerId }) => {
     const lobby = lobbies[code];
     if (!lobby || lobby.hostId !== socket.id) return;
@@ -110,32 +110,32 @@ io.on("connection", (socket) => {
     if (playerIndex !== -1) {
       lobby.players.splice(playerIndex, 1);
       
-      // Sıra düzeninden de çıkar
+      // Remove from turn order as well
       const turnIndex = lobby.gameSettings.turnOrder.indexOf(playerId);
       if (turnIndex !== -1) {
         lobby.gameSettings.turnOrder.splice(turnIndex, 1);
       }
 
-      // Eğer atılan oyuncu ilk oyuncuysa, yeni ilk oyuncuyu ayarla
+      // If kicked player was first player, set new first player
       if (lobby.gameSettings.firstPlayer === playerId && lobby.players.length > 0) {
         lobby.gameSettings.firstPlayer = lobby.players[0].id;
       }
 
       io.to(code).emit("lobby-updated", lobby);
-      io.to(playerId).emit("error-message", "Oyundan atıldınız!");
+      io.to(playerId).emit("error-message", "You have been kicked from the game!");
     }
   });
 
-  // ✅ Mevcut lobby state'i isteme
+  // ✅ Request current lobby state
   socket.on("get-lobby-state", ({ code }) => {
     const lobby = lobbies[code];
-    console.log("📤 Lobby state istendi:", code, lobby);
+    console.log("📤 Lobby state requested:", code, lobby);
     if (lobby) {
       socket.emit("lobby-updated", lobby);
     }
   });
 
-  // ✅ Oyunu başlatma (sadece host)
+  // ✅ Start game (host only)
   socket.on("start-game", ({ code }) => {
     const lobby = lobbies[code];
     if (!lobby || lobby.hostId !== socket.id) return;
@@ -152,30 +152,30 @@ io.on("connection", (socket) => {
       gameSettings: lobby.gameSettings,
     };
 
-    console.log("🎮 Oyun başlatıldı:", code, games[code]);
+    console.log("🎮 Game started:", code, games[code]);
 
     io.to(code).emit("game-updated", {
       ...games[code],
-      code, // ✅ code alanı eklendi
+      code, // ✅ code field added
     });
   });
 
-  // ✅ Mevcut game state'i isteme
+  // ✅ Request current game state
   socket.on("get-game-state", ({ code }) => {
     const game = games[code];
-    console.log("📤 Game state istendi:", code, game);
+    console.log("📤 Game state requested:", code, game);
     if (game) {
       socket.emit("game-updated", { ...game, code });
       socket.emit("transaction-history", game.history);
     }
   });
 
-  // ✅ Para transferi
+  // ✅ Money transfer
   socket.on("transfer-money", ({ code, from, to, amount }) => {
     const game = games[code];
     if (!game) return;
     if (game.currentTurn !== from) {
-      socket.emit("error-message", "Sıra sende değil!");
+      socket.emit("error-message", "It's not your turn!");
       return;
     }
 
@@ -193,16 +193,16 @@ io.on("connection", (socket) => {
       io.to(code).emit("game-updated", { ...game, code });
       io.to(code).emit("transaction-history", game.history);
     } else {
-      socket.emit("error-message", "Yetersiz bakiye!");
+      socket.emit("error-message", "Insufficient balance!");
     }
   });
 
-  // ✅ Banka işlemleri
+  // ✅ Bank operations
   socket.on("bank-action", ({ code, playerId, amount, action }) => {
     const game = games[code];
     if (!game) return;
     if (game.currentTurn !== playerId) {
-      socket.emit("error-message", "Sıra sende değil!");
+      socket.emit("error-message", "It's not your turn!");
       return;
     }
 
@@ -223,7 +223,7 @@ io.on("connection", (socket) => {
     io.to(code).emit("transaction-history", game.history);
   });
 
-  // ✅ Sıra bitirme
+  // ✅ End turn
   socket.on("end-turn", ({ code }) => {
     const lobby = lobbies[code];
     const game = games[code];
@@ -238,20 +238,20 @@ io.on("connection", (socket) => {
     io.to(code).emit("game-updated", { ...game, code });
   });
 
-  // ✅ Undo Transaction (sadece host yapabilir)
+  // ✅ Undo Transaction (host only)
   socket.on("undo-transaction", ({ code }) => {
     const lobby = lobbies[code];
     const game = games[code];
     if (!lobby || !game) return;
 
     if (lobby.hostId !== socket.id) {
-      socket.emit("error-message", "Sadece host undo yapabilir!");
+      socket.emit("error-message", "Only host can undo!");
       return;
     }
 
     const lastAction = game.history.pop();
     if (!lastAction) {
-      socket.emit("error-message", "Geri alınacak işlem yok!");
+      socket.emit("error-message", "No transaction to undo!");
       return;
     }
 
@@ -269,77 +269,77 @@ io.on("connection", (socket) => {
       game.balances[playerId] += amount;
     }
 
-    console.log("↩️ Undo yapıldı:", lastAction);
+    console.log("↩️ Undo completed:", lastAction);
 
     io.to(code).emit("game-updated", { ...game, code });
     io.to(code).emit("transaction-history", game.history);
   });
 
-  // ✅ Spesifik Transaction Undo (sadece host yapabilir)
+  // ✅ Specific Transaction Undo (host only)
   socket.on("undo-specific-transaction", ({ code, transactionId }) => {
-    console.log("🔄 Spesifik undo isteği alındı:", { code, transactionId, socketId: socket.id });
+    console.log("🔄 Specific undo request received:", { code, transactionId, socketId: socket.id });
     
     const lobby = lobbies[code];
     const game = games[code];
     if (!lobby || !game) {
-      console.log("❌ Lobby veya game bulunamadı:", { lobby: !!lobby, game: !!game });
+      console.log("❌ Lobby or game not found:", { lobby: !!lobby, game: !!game });
       return;
     }
 
     if (lobby.hostId !== socket.id) {
-      console.log("❌ Sadece host undo yapabilir:", { hostId: lobby.hostId, socketId: socket.id });
-      socket.emit("error-message", "Sadece host undo yapabilir!");
+      console.log("❌ Only host can undo:", { hostId: lobby.hostId, socketId: socket.id });
+      socket.emit("error-message", "Only host can undo!");
       return;
     }
 
-    // İşlemi bul
+    // Find transaction
     const transactionIndex = game.history.findIndex(tx => tx.id === transactionId);
     if (transactionIndex === -1) {
-      console.log("❌ İşlem bulunamadı:", { transactionId, availableIds: game.history.map(tx => tx.id) });
-      socket.emit("error-message", "İşlem bulunamadı!");
+      console.log("❌ Transaction not found:", { transactionId, availableIds: game.history.map(tx => tx.id) });
+      socket.emit("error-message", "Transaction not found!");
       return;
     }
 
     const transaction = game.history[transactionIndex];
-    console.log("✅ İşlem bulundu:", transaction);
+    console.log("✅ Transaction found:", transaction);
 
-    // İşlemi geri al
+    // Reverse the transaction
     if (transaction.action === "transfer") {
       const { from, to, amount } = transaction.details;
       game.balances[from] += amount;
       game.balances[to] -= amount;
-      console.log("🔄 Transfer geri alındı:", { from, to, amount });
+      console.log("🔄 Transfer reversed:", { from, to, amount });
     }
     if (transaction.action === "bank-add") {
       const { playerId, amount } = transaction.details;
       game.balances[playerId] -= amount;
-      console.log("🔄 Bank-add geri alındı:", { playerId, amount });
+      console.log("🔄 Bank-add reversed:", { playerId, amount });
     }
     if (transaction.action === "bank-remove") {
       const { playerId, amount } = transaction.details;
       game.balances[playerId] += amount;
-      console.log("🔄 Bank-remove geri alındı:", { playerId, amount });
+      console.log("🔄 Bank-remove reversed:", { playerId, amount });
     }
 
-    // İşlemi geçmişten kaldır
+    // Remove transaction from history
     game.history.splice(transactionIndex, 1);
 
-    console.log("↩️ Spesifik undo yapıldı:", transaction);
+    console.log("↩️ Specific undo completed:", transaction);
 
     io.to(code).emit("game-updated", { ...game, code });
     io.to(code).emit("transaction-history", game.history);
   });
 
-  // ✅ Oyuncu ayrıldığında
+  // ✅ When player disconnects
   socket.on("disconnect", () => {
-    console.log("❌ Oyuncu ayrıldı:", socket.id);
+    console.log("❌ Player disconnected:", socket.id);
     for (const code in lobbies) {
       const lobby = lobbies[code];
       const index = lobby.players.findIndex((p) => p.id === socket.id);
       if (index !== -1) {
         lobby.players.splice(index, 1);
         
-        // Sıra düzeninden de çıkar
+        // Remove from turn order as well
         const turnIndex = lobby.gameSettings.turnOrder.indexOf(socket.id);
         if (turnIndex !== -1) {
           lobby.gameSettings.turnOrder.splice(turnIndex, 1);
@@ -352,6 +352,6 @@ io.on("connection", (socket) => {
 });
 
 httpServer.listen(3001, "0.0.0.0", () => {
-  console.log("✅ Socket.IO server 3001 portunda çalışıyor...");
-  console.log("🌐 Ağ erişimi: http://192.168.1.9:3001");
+  console.log("✅ Socket.IO server running on port 3001...");
+  console.log("🌐 Network access: http://192.168.1.9:3001");
 });

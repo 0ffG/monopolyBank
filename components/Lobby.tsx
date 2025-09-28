@@ -64,7 +64,7 @@ export default function Lobby({ lobby }: LobbyProps) {
 
   const getPlayerName = (id: string) => {
     const player = lobby.players.find(p => p.id === id);
-    return player ? player.name : "Bilinmeyen Oyuncu";
+    return player ? player.name : "Unknown Player";
   };
 
   useEffect(() => {
@@ -106,10 +106,10 @@ export default function Lobby({ lobby }: LobbyProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 transform -skew-y-2 rounded-lg"></div>
         <div className="relative bg-white p-4 md:p-8 rounded-lg shadow-lg">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800 text-center mb-2 md:mb-4 tracking-wider">
-            LOBİ
+            LOBBY
           </h1>
           <div className="flex items-center justify-center space-x-2 md:space-x-4">
-            <span className="text-lg md:text-2xl font-bold text-purple-600">Kod:</span>
+            <span className="text-lg md:text-2xl font-bold text-purple-600">Code:</span>
             <div className="bg-gray-100 px-3 md:px-6 py-2 md:py-3 rounded-full border-2 border-gray-300">
               <span className="text-xl md:text-3xl font-mono font-bold text-gray-800 tracking-widest">{lobby.code}</span>
             </div>
@@ -130,7 +130,7 @@ export default function Lobby({ lobby }: LobbyProps) {
               }`}
             >
               <UsersIcon />
-              <span className="text-sm md:text-lg font-semibold">Oyuncular</span>
+              <span className="text-sm md:text-lg font-semibold">Players</span>
             </button>
             {isHost && (
               <button
@@ -142,7 +142,7 @@ export default function Lobby({ lobby }: LobbyProps) {
                 }`}
               >
                 <SettingsIcon />
-                <span className="text-sm md:text-lg font-semibold">Ayarlar</span>
+                <span className="text-sm md:text-lg font-semibold">Settings</span>
               </button>
             )}
           </div>
@@ -152,7 +152,7 @@ export default function Lobby({ lobby }: LobbyProps) {
       {/* Players Tab */}
       {activeTab === "players" && (
         <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-8 mb-4 md:mb-8">
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">Oyuncular</h3>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">Players</h3>
           <div className="grid gap-3 md:gap-4">
             {lobby.players.map((player, index) => (
               <div 
@@ -180,7 +180,7 @@ export default function Lobby({ lobby }: LobbyProps) {
                       onClick={() => handleKickPlayer(player.id)}
                       className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold shadow-lg transform hover:-translate-y-1 transition-all duration-300 text-sm md:text-base w-full md:w-auto flex-shrink-0"
                     >
-                      Çıkar
+                      Kick
                     </button>
                   )}
                 </div>
@@ -193,24 +193,24 @@ export default function Lobby({ lobby }: LobbyProps) {
       {/* Settings Tab */}
       {activeTab === "settings" && isHost && (
         <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl p-8 mb-8">
-          <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Oyun Ayarları</h3>
+          <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Game Settings</h3>
           
           <div className="grid gap-8">
-            {/* Başlangıç Bakiyesi */}
+            {/* Initial Balance */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
-              <label className="block text-xl font-semibold text-gray-700 mb-4">💰 Başlangıç Bakiyesi</label>
+              <label className="block text-xl font-semibold text-gray-700 mb-4">💰 Initial Balance</label>
               <input
                 type="number"
                 value={gameSettings.initialBalance}
                 onChange={(e) => setGameSettings({...gameSettings, initialBalance: Number(e.target.value)})}
                 className="w-full border-2 border-gray-300 rounded-full p-4 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                placeholder="Başlangıç bakiyesi..."
+                placeholder="Initial balance..."
               />
             </div>
 
-            {/* İlk Oyuncu */}
+            {/* First Player */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
-              <label className="block text-xl font-semibold text-gray-700 mb-4">🎯 İlk Oyuncu</label>
+              <label className="block text-xl font-semibold text-gray-700 mb-4">🎯 First Player</label>
               <select
                 value={gameSettings.firstPlayer}
                 onChange={(e) => setGameSettings({...gameSettings, firstPlayer: e.target.value})}
@@ -224,9 +224,9 @@ export default function Lobby({ lobby }: LobbyProps) {
               </select>
             </div>
 
-            {/* Sıra Düzeni */}
+            {/* Turn Order */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
-              <label className="block text-xl font-semibold text-gray-700 mb-4">🔄 Sıra Düzeni</label>
+              <label className="block text-xl font-semibold text-gray-700 mb-4">🔄 Turn Order</label>
               <div className="space-y-3">
                 {gameSettings.turnOrder.map((playerId, index) => (
                   <div key={playerId} className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-200">
@@ -257,13 +257,13 @@ export default function Lobby({ lobby }: LobbyProps) {
               </div>
             </div>
 
-            {/* Hızlı Butonlar */}
+            {/* Quick Buttons */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
-              <label className="block text-xl font-semibold text-gray-700 mb-4">⚡ Hızlı Transfer Butonları</label>
+              <label className="block text-xl font-semibold text-gray-700 mb-4">⚡ Quick Transfer Buttons</label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {gameSettings.quickButtons.map((amount, index) => (
                   <div key={index} className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <label className="block text-sm font-medium text-gray-600 mb-2">Buton {index + 1}</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">Button {index + 1}</label>
                     <input
                       type="number"
                       value={amount}
@@ -283,7 +283,7 @@ export default function Lobby({ lobby }: LobbyProps) {
               onClick={handleUpdateSettings}
               className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition duration-300 ease-in-out text-xl"
             >
-              💾 Ayarları Kaydet
+              💾 Save Settings
             </button>
           </div>
         </div>
@@ -296,7 +296,7 @@ export default function Lobby({ lobby }: LobbyProps) {
             onClick={handleStartGame}
             className="w-full max-w-md bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 md:py-6 px-8 md:px-12 rounded-full shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out text-lg md:text-2xl"
           >
-            🚀 OYUNU BAŞLAT
+            🚀 START GAME
           </button>
         </div>
       )}

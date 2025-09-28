@@ -32,7 +32,7 @@ export default function PlayerList({ players, balances, currentTurn }: PlayerLis
       <div className="relative p-3 flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-xl"></div>
         <h3 className="relative text-lg font-bold text-white text-center tracking-wide">
-          👥 OYUNCULAR
+          👥 PLAYERS
         </h3>
       </div>
 
@@ -41,7 +41,7 @@ export default function PlayerList({ players, balances, currentTurn }: PlayerLis
         {players.length === 0 ? (
           <div className="text-center py-6">
             <div className="text-3xl mb-2">🎮</div>
-            <p className="text-base text-gray-500 font-medium">Henüz oyuncu yok</p>
+            <p className="text-base text-gray-500 font-medium">No players yet</p>
           </div>
         ) : (
           <div className="space-y-2.5">

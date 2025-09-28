@@ -48,12 +48,12 @@ export default function LobbyClient() {
   }, [socket]);
 
   const handleCreateLobby = () => {
-    if (!name) return alert("İsim girmelisin!");
+    if (!name) return alert("You must enter a name!");
     socket.emit("create-lobby", name);
   };
 
   const handleJoinLobby = () => {
-    if (!name || !code) return alert("İsim ve lobby kodu girmelisin!");
+    if (!name || !code) return alert("You must enter a name and lobby code!");
     socket.emit("join-lobby", { code, name });
   };
 
@@ -81,12 +81,12 @@ const KeyIcon = () => (
       <div className="relative mb-8 md:mb-20">
         <div className="absolute inset-0 bg-blue-500 transform -skew-y-3 rounded-lg"></div>
         <h1 className="relative text-4xl md:text-7xl font-extrabold text-white py-4 md:py-6 tracking-wider" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.4)' }}>
-          OYUNA KATIL
+          JOIN GAME
         </h1>
       </div>
 
       <div className="mb-8 md:mb-16">
-        <label htmlFor="name" className="sr-only">İsmin</label>
+        <label htmlFor="name" className="sr-only">Your Name</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none">
             <UserIcon />
@@ -94,7 +94,7 @@ const KeyIcon = () => (
           <input
             id="name"
             type="text"
-            placeholder="İsmini Gir..."
+            placeholder="Enter Your Name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full max-w-xl mx-auto border-2 border-gray-300 rounded-full p-4 md:p-6 pl-12 md:pl-16 text-lg md:text-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -104,15 +104,15 @@ const KeyIcon = () => (
 
       <div className="flex flex-col md:flex-row items-center justify-around space-y-8 md:space-y-0 md:space-x-16">
         
-        {/* Lobi Oluşturma Bölümü */}
+        {/* Create Lobby Section */}
         <div className="flex flex-col items-center space-y-4 md:space-y-8 w-full md:w-1/2">
-          <h2 className="text-2xl md:text-4xl font-bold text-gray-700">Lobi Oluştur</h2>
-          <p className="text-lg md:text-xl text-gray-500 px-4 text-center">Yeni bir oyun başlat ve arkadaşlarını davet et.</p>
+          <h2 className="text-2xl md:text-4xl font-bold text-gray-700">Create Lobby</h2>
+          <p className="text-lg md:text-xl text-gray-500 px-4 text-center">Start a new game and invite your friends.</p>
           <button
             onClick={handleCreateLobby}
             className="w-full max-w-md bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-4 md:py-6 px-8 md:px-10 rounded-full shadow-lg transform hover:-translate-y-1 transition duration-300 ease-in-out text-xl md:text-2xl"
           >
-            Oluştur
+            Create
           </button>
         </div>
         
@@ -121,21 +121,21 @@ const KeyIcon = () => (
           <div className="block md:hidden w-full h-px bg-gray-300"></div>
           <div className="hidden md:block h-64 w-px bg-gray-300"></div>
           <div className="absolute bg-white px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-gray-300 font-bold text-gray-500 text-lg md:text-xl">
-            VEYA
+            OR
           </div>
         </div>
 
-        {/* Lobiye Katılma Bölümü */}
+        {/* Join Lobby Section */}
         <div className="flex flex-col items-center space-y-4 md:space-y-8 w-full md:w-1/2">
-          <h2 className="text-2xl md:text-4xl font-bold text-gray-700">Lobi'ye Katıl</h2>
-          <p className="text-lg md:text-xl text-gray-500 px-4 text-center">Mevcut bir oyuna katılmak için kodu gir.</p>
+          <h2 className="text-2xl md:text-4xl font-bold text-gray-700">Join Lobby</h2>
+          <p className="text-lg md:text-xl text-gray-500 px-4 text-center">Enter the code to join an existing game.</p>
           <div className="relative w-full max-w-md">
             <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none">
               <KeyIcon />
             </div>
             <input
               type="text"
-              placeholder="Lobi Kodu"
+              placeholder="Lobby Code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               className="w-full border-2 border-gray-300 rounded-full p-4 md:p-6 pl-12 md:pl-16 text-lg md:text-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
@@ -145,7 +145,7 @@ const KeyIcon = () => (
             onClick={handleJoinLobby}
             className="w-full max-w-md bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 md:py-6 px-8 md:px-10 rounded-full shadow-lg transform hover:-translate-y-1 transition duration-300 ease-in-out text-xl md:text-2xl"
           >
-            Katıl
+            Join
           </button>
         </div>
       </div>

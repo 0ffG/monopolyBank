@@ -29,10 +29,10 @@ export default function GameControls({
     setAmount(prev => prev + quickAmount);
   };
 
-  // Oyuncudan oyuncuya para transferi
+  // Player to player money transfer
   const handleTransfer = () => {
-    if (!isMyTurn) return alert("Sıra sende değil!");
-    if (!targetId || amount <= 0) return alert("Hedef oyuncu ve tutar gerekli!");
+    if (!isMyTurn) return alert("It's not your turn!");
+    if (!targetId || amount <= 0) return alert("Target player and amount required!");
     socket.emit("transfer-money", {
       code: lobbyCode,
       from: myPlayerId,
@@ -42,10 +42,10 @@ export default function GameControls({
     setAmount(0);
   };
 
-  // Bankadan ekleme
+  // Add from bank
   const handleAddFromBank = () => {
-    if (!isMyTurn) return alert("Sıra sende değil!");
-    if (amount <= 0) return alert("Tutar gerekli!");
+    if (!isMyTurn) return alert("It's not your turn!");
+    if (amount <= 0) return alert("Amount required!");
     socket.emit("bank-action", {
       code: lobbyCode,
       playerId: myPlayerId,
@@ -55,10 +55,10 @@ export default function GameControls({
     setAmount(0);
   };
 
-  // Bankadan çıkarma
+  // Remove from bank
   const handleRemoveFromBank = () => {
-    if (!isMyTurn) return alert("Sıra sende değil!");
-    if (amount <= 0) return alert("Tutar gerekli!");
+    if (!isMyTurn) return alert("It's not your turn!");
+    if (amount <= 0) return alert("Amount required!");
     socket.emit("bank-action", {
       code: lobbyCode,
       playerId: myPlayerId,
@@ -68,9 +68,9 @@ export default function GameControls({
     setAmount(0);
   };
 
-  // Sıra bitirme
+  // End turn
   const handleEndTurn = () => {
-    if (!isMyTurn) return alert("Sıra sende değil!");
+    if (!isMyTurn) return alert("It's not your turn!");
     socket.emit("end-turn", { code: lobbyCode });
   };
 
@@ -103,7 +103,7 @@ export default function GameControls({
       <div className="relative p-2.5 md:p-4 flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-t-lg md:rounded-t-xl"></div>
         <h3 className="relative text-lg md:text-2xl font-bold text-white text-center tracking-wide">
-          🎮 OYUN KONTROLLERI
+          🎮 GAME CONTROLS
         </h3>
       </div>
 
@@ -115,19 +115,19 @@ export default function GameControls({
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg md:rounded-xl p-3 md:p-5">
               <label className="block text-base md:text-lg font-semibold text-gray-700 mb-2.5 md:mb-4 flex items-center justify-center space-x-2">
                 <MoneyIcon />
-                <span>💰 Miktar Belirle</span>
+                <span>💰 Set Amount</span>
               </label>
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                placeholder="Miktar girin..."
+                placeholder="Enter amount..."
                 className="w-full border-2 border-gray-300 rounded-lg md:rounded-xl p-3 md:p-4 text-xl md:text-2xl text-center font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-lg"
               />
               
-              {/* Hızlı Transfer Butonları */}
+              {/* Quick Transfer Buttons */}
               <div className="mt-2.5 md:mt-4">
-                <label className="block text-sm md:text-base font-medium text-gray-600 mb-2 md:mb-3 text-center">⚡ Hızlı Miktarlar</label>
+                <label className="block text-sm md:text-base font-medium text-gray-600 mb-2 md:mb-3 text-center">⚡ Quick Amounts</label>
                 <div className="grid grid-cols-3 gap-2 md:gap-4">
                   {quickButtons.map((quickAmount, index) => (
                     <button
@@ -147,7 +147,7 @@ export default function GameControls({
                   onClick={() => setAmount(0)}
                   className="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 md:px-6 rounded-full shadow-md transform hover:scale-105 transition-all duration-300 text-sm md:text-base"
                 >
-                  🗑️ Temizle
+                  🗑️ Clear
                 </button>
               </div>
             </div>
@@ -156,14 +156,14 @@ export default function GameControls({
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl md:rounded-2xl p-4 md:p-8">
               <label className="block text-lg md:text-2xl font-semibold text-gray-700 mb-3 md:mb-6 flex items-center justify-center space-x-2 md:space-x-3">
                 <TransferIcon />
-                <span>🎯 Hedef Oyuncu</span>
+                <span>🎯 Target Player</span>
               </label>
               <select
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}
                 className="w-full border-2 md:border-3 border-gray-300 rounded-xl md:rounded-2xl p-4 md:p-6 text-lg md:text-xl focus:outline-none focus:ring-2 md:focus:ring-4 focus:ring-purple-500 focus:border-transparent transition shadow-lg"
               >
-                <option value="">Oyuncu seçin...</option>
+                <option value="">Select player...</option>
                 {players
                   .filter((p) => p.id !== myPlayerId)
                   .map((p) => (
@@ -182,7 +182,7 @@ export default function GameControls({
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 md:py-6 px-6 md:px-8 rounded-xl md:rounded-2xl shadow-xl transform hover:-translate-y-1 md:hover:-translate-y-2 disabled:transform-none transition-all duration-300 flex items-center justify-center space-x-2 md:space-x-3 text-lg md:text-2xl"
               >
                 <TransferIcon />
-                <span>💸 Para Transferi</span>
+                <span>💸 Transfer Money</span>
               </button>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
@@ -192,7 +192,7 @@ export default function GameControls({
                   className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 md:py-6 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-xl transform hover:-translate-y-1 md:hover:-translate-y-2 disabled:transform-none transition-all duration-300 flex items-center justify-center space-x-2 md:space-x-3 text-base md:text-lg"
                 >
                   <BankIcon />
-                  <span>🏦➕ Bankadan Ekle</span>
+                  <span>🏦➕ Add from Bank</span>
                 </button>
                 <button
                   onClick={handleRemoveFromBank}
@@ -200,7 +200,7 @@ export default function GameControls({
                   className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 md:py-6 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-xl transform hover:-translate-y-1 md:hover:-translate-y-2 disabled:transform-none transition-all duration-300 flex items-center justify-center space-x-2 md:space-x-3 text-base md:text-lg"
                 >
                   <BankIcon />
-                  <span>🏦➖ Bankadan Çıkar</span>
+                  <span>🏦➖ Remove from Bank</span>
                 </button>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function GameControls({
                 onClick={handleEndTurn}
                 className="w-full bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white font-bold py-5 md:py-8 px-6 md:px-8 rounded-xl md:rounded-2xl shadow-2xl transform hover:-translate-y-1 md:hover:-translate-y-2 hover:scale-105 transition-all duration-300 text-lg md:text-2xl"
               >
-                ✅ Sırayı Bitir ve Devret
+                ✅ End Turn
               </button>
             </div>
           </div>
@@ -219,11 +219,11 @@ export default function GameControls({
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4 md:space-y-8">
             <div className="text-6xl md:text-9xl animate-pulse">⏳</div>
             <div className="space-y-2 md:space-y-4">
-              <p className="text-xl md:text-3xl text-gray-600 font-bold">Şu an senin sıran değil</p>
-              <p className="text-lg md:text-xl text-gray-400">Sıranı bekle...</p>
+              <p className="text-xl md:text-3xl text-gray-600 font-bold">It's not your turn</p>
+              <p className="text-lg md:text-xl text-gray-400">Wait for your turn...</p>
               <div className="mt-4 md:mt-8 p-4 md:p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl md:rounded-2xl border-2 border-yellow-200">
                 <p className="text-sm md:text-lg text-yellow-800 font-semibold">
-                  💡 <strong>İpucu:</strong> Diğer oyuncuların işlemlerini geçmişten takip edebilirsin!
+                  💡 <strong>Tip:</strong> You can track other players' transactions in the history!
                 </p>
               </div>
             </div>

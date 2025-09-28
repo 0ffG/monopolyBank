@@ -48,11 +48,11 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
   const handleUndoSpecific = (transactionId: string, transactionDetails: any, action: string) => {
     const transactionText = getTransactionText(transactionDetails, action);
     const confirmed = window.confirm(
-      `Bu işlemi geri almak istediğinizden emin misiniz?\n\n"${transactionText}"\n\nBu işlem geri alınamaz.`
+      `Are you sure you want to undo this transaction?\n\n"${transactionText}"\n\nThis action cannot be undone.`
     );
     
     if (confirmed) {
-      console.log("🔄 Spesifik işlem geri alma isteği:", { transactionId, transactionDetails, action });
+      console.log("🔄 Specific transaction undo request:", { transactionId, transactionDetails, action });
       socket.emit("undo-specific-transaction", { code: lobbyCode, transactionId });
     }
   };
@@ -61,16 +61,16 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
     if (action === "transfer") {
       return `${getPlayerName(details.from)} → ${getPlayerName(details.to)} : ${details.amount.toLocaleString()}₺`;
     } else if (action === "bank-add") {
-      return `Bankadan eklendi: +${details.amount.toLocaleString()}₺ → ${getPlayerName(details.playerId)}`;
+      return `Added from bank: +${details.amount.toLocaleString()}₺ → ${getPlayerName(details.playerId)}`;
     } else if (action === "bank-remove") {
-      return `Bankadan çıkarıldı: -${details.amount.toLocaleString()}₺ → ${getPlayerName(details.playerId)}`;
+      return `Removed from bank: -${details.amount.toLocaleString()}₺ → ${getPlayerName(details.playerId)}`;
     }
-    return "Bilinmeyen işlem";
+    return "Unknown transaction";
   };
 
   const getPlayerName = (id: string) => {
     const player = players.find((p) => p.id === id);
-    return player ? player.name : "Bilinmeyen Oyuncu";
+    return player ? player.name : "Unknown Player";
   };
 
   const TransferIcon = () => (
@@ -108,7 +108,7 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
       <div className="relative p-4 flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-t-2xl"></div>
         <h3 className="relative text-xl font-bold text-white text-center tracking-wide">
-          📋 İŞLEM GEÇMİŞİ
+          📋 TRANSACTION HISTORY
         </h3>
       </div>
 
@@ -117,8 +117,8 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
         {history.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-2">📊</div>
-            <p className="text-lg text-gray-500 font-medium">Henüz işlem yapılmadı</p>
-            <p className="text-sm text-gray-400 mt-2">İlk işlemi yapmayı bekliyor...</p>
+            <p className="text-lg text-gray-500 font-medium">No transactions yet</p>
+            <p className="text-sm text-gray-400 mt-2">Waiting for the first transaction...</p>
           </div>
         ) : (
           <div className="space-y-2 flex-1 overflow-y-auto">
@@ -148,7 +148,7 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
                       <>
                         <BankAddIcon />
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs text-gray-600">Bankadan</div>
+                          <div className="text-xs text-gray-600">From Bank</div>
                           <div className="flex items-center space-x-1">
                             <span className="font-bold text-green-600 text-sm">+{tx.details.amount.toLocaleString()}₺</span>
                             <span className="text-gray-500 text-xs">→</span>
@@ -161,7 +161,7 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
                       <>
                         <BankRemoveIcon />
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs text-gray-600">Bankadan</div>
+                          <div className="text-xs text-gray-600">From Bank</div>
                           <div className="flex items-center space-x-1">
                             <span className="font-bold text-red-600 text-sm">-{tx.details.amount.toLocaleString()}₺</span>
                             <span className="text-gray-500 text-xs">→</span>
@@ -180,7 +180,7 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
                       <button
                         onClick={() => handleUndoSpecific(tx.id, tx.details, tx.action)}
                         className="opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white p-1 rounded-full shadow-md transform hover:scale-110 transition-all duration-300"
-                        title="Bu işlemi geri al"
+                        title="Undo this transaction"
                       >
                         <UndoIcon />
                       </button>
@@ -201,7 +201,7 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
             className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-1.5 px-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-1.5 text-xs"
           >
             <UndoIcon />
-            <span>🔄 Son İşlemi Geri Al</span>
+            <span>🔄 Undo Last Transaction</span>
           </button>
         </div>
       )}
