@@ -98,112 +98,138 @@ export default function GameControls({
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 h-full">
-      <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 transform -skew-y-1 rounded-lg"></div>
-        <h3 className="relative text-2xl font-bold text-white py-3 text-center tracking-wide">
-          🎮 KONTROLLER
+    <div className="bg-white rounded-lg md:rounded-xl shadow-xl h-full flex flex-col">
+      {/* Header */}
+      <div className="relative p-2.5 md:p-4 flex-shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-blue-500 rounded-t-lg md:rounded-t-xl"></div>
+        <h3 className="relative text-lg md:text-2xl font-bold text-white text-center tracking-wide">
+          🎮 OYUN KONTROLLERI
         </h3>
       </div>
 
-      {isMyTurn ? (
-        <div className="space-y-6">
-          {/* Miktar Girişi */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
-            <label className="block text-lg font-semibold text-gray-700 mb-4 flex items-center space-x-2">
-              <MoneyIcon />
-              <span>Miktar</span>
-            </label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              placeholder="Miktar girin..."
-              className="w-full border-2 border-gray-300 rounded-full p-4 text-lg text-center font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-            
-            {/* Hızlı Transfer Butonları */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-600 mb-3">⚡ Hızlı Miktarlar</label>
-              <div className="grid grid-cols-3 gap-3">
-                {quickButtons.map((quickAmount, index) => (
-                  <button
-                    key={index}
-                    onClick={() => addQuickAmount(quickAmount)}
-                    className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white font-bold py-3 px-4 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300"
-                  >
-                    +{quickAmount}₺
-                  </button>
-                ))}
+      {/* Content */}
+      <div className="flex-1 p-2.5 md:p-4 overflow-y-auto">
+        {isMyTurn ? (
+          <div className="space-y-3 md:space-y-5">
+            {/* Miktar Girişi */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg md:rounded-xl p-3 md:p-5">
+              <label className="block text-base md:text-lg font-semibold text-gray-700 mb-2.5 md:mb-4 flex items-center justify-center space-x-2">
+                <MoneyIcon />
+                <span>💰 Miktar Belirle</span>
+              </label>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                placeholder="Miktar girin..."
+                className="w-full border-2 border-gray-300 rounded-lg md:rounded-xl p-3 md:p-4 text-xl md:text-2xl text-center font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-lg"
+              />
+              
+              {/* Hızlı Transfer Butonları */}
+              <div className="mt-2.5 md:mt-4">
+                <label className="block text-sm md:text-base font-medium text-gray-600 mb-2 md:mb-3 text-center">⚡ Hızlı Miktarlar</label>
+                <div className="grid grid-cols-3 gap-2 md:gap-4">
+                  {quickButtons.map((quickAmount, index) => (
+                    <button
+                      key={index}
+                      onClick={() => addQuickAmount(quickAmount)}
+                      className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white font-bold py-3 md:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl shadow-lg transform hover:-translate-y-1 md:hover:-translate-y-2 hover:scale-105 transition-all duration-300 text-sm md:text-lg"
+                    >
+                      +{quickAmount}₺
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Miktar Temizleme */}
+              <div className="mt-3 md:mt-4 text-center">
+                <button
+                  onClick={() => setAmount(0)}
+                  className="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 md:px-6 rounded-full shadow-md transform hover:scale-105 transition-all duration-300 text-sm md:text-base"
+                >
+                  🗑️ Temizle
+                </button>
+              </div>
+            </div>
+
+            {/* Hedef Oyuncu Seçimi */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl md:rounded-2xl p-4 md:p-8">
+              <label className="block text-lg md:text-2xl font-semibold text-gray-700 mb-3 md:mb-6 flex items-center justify-center space-x-2 md:space-x-3">
+                <TransferIcon />
+                <span>🎯 Hedef Oyuncu</span>
+              </label>
+              <select
+                value={targetId}
+                onChange={(e) => setTargetId(e.target.value)}
+                className="w-full border-2 md:border-3 border-gray-300 rounded-xl md:rounded-2xl p-4 md:p-6 text-lg md:text-xl focus:outline-none focus:ring-2 md:focus:ring-4 focus:ring-purple-500 focus:border-transparent transition shadow-lg"
+              >
+                <option value="">Oyuncu seçin...</option>
+                {players
+                  .filter((p) => p.id !== myPlayerId)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Ana Aksiyon Butonları */}
+            <div className="space-y-3 md:space-y-6">
+              <button
+                onClick={handleTransfer}
+                disabled={!targetId || amount <= 0}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 md:py-6 px-6 md:px-8 rounded-xl md:rounded-2xl shadow-xl transform hover:-translate-y-1 md:hover:-translate-y-2 disabled:transform-none transition-all duration-300 flex items-center justify-center space-x-2 md:space-x-3 text-lg md:text-2xl"
+              >
+                <TransferIcon />
+                <span>💸 Para Transferi</span>
+              </button>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                <button
+                  onClick={handleAddFromBank}
+                  disabled={amount <= 0}
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 md:py-6 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-xl transform hover:-translate-y-1 md:hover:-translate-y-2 disabled:transform-none transition-all duration-300 flex items-center justify-center space-x-2 md:space-x-3 text-base md:text-lg"
+                >
+                  <BankIcon />
+                  <span>🏦➕ Bankadan Ekle</span>
+                </button>
+                <button
+                  onClick={handleRemoveFromBank}
+                  disabled={amount <= 0}
+                  className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 md:py-6 px-4 md:px-6 rounded-xl md:rounded-2xl shadow-xl transform hover:-translate-y-1 md:hover:-translate-y-2 disabled:transform-none transition-all duration-300 flex items-center justify-center space-x-2 md:space-x-3 text-base md:text-lg"
+                >
+                  <BankIcon />
+                  <span>🏦➖ Bankadan Çıkar</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sıra Bitirme */}
+            <div className="pt-4 md:pt-6 border-t-2 border-gray-200">
+              <button
+                onClick={handleEndTurn}
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white font-bold py-5 md:py-8 px-6 md:px-8 rounded-xl md:rounded-2xl shadow-2xl transform hover:-translate-y-1 md:hover:-translate-y-2 hover:scale-105 transition-all duration-300 text-lg md:text-2xl"
+              >
+                ✅ Sırayı Bitir ve Devret
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-4 md:space-y-8">
+            <div className="text-6xl md:text-9xl animate-pulse">⏳</div>
+            <div className="space-y-2 md:space-y-4">
+              <p className="text-xl md:text-3xl text-gray-600 font-bold">Şu an senin sıran değil</p>
+              <p className="text-lg md:text-xl text-gray-400">Sıranı bekle...</p>
+              <div className="mt-4 md:mt-8 p-4 md:p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl md:rounded-2xl border-2 border-yellow-200">
+                <p className="text-sm md:text-lg text-yellow-800 font-semibold">
+                  💡 <strong>İpucu:</strong> Diğer oyuncuların işlemlerini geçmişten takip edebilirsin!
+                </p>
               </div>
             </div>
           </div>
-
-          {/* Hedef Oyuncu Seçimi */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6">
-            <label className="block text-lg font-semibold text-gray-700 mb-4 flex items-center space-x-2">
-              <TransferIcon />
-              <span>Hedef Oyuncu</span>
-            </label>
-            <select
-              value={targetId}
-              onChange={(e) => setTargetId(e.target.value)}
-              className="w-full border-2 border-gray-300 rounded-full p-4 text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-            >
-              <option value="">Oyuncu seçin...</option>
-              {players
-                .filter((p) => p.id !== myPlayerId)
-                .map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          {/* Aksiyon Butonları */}
-          <div className="space-y-4">
-            <button
-              onClick={handleTransfer}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2"
-            >
-              <TransferIcon />
-              <span>💸 Para Transferi</span>
-            </button>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={handleAddFromBank}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2"
-              >
-                <BankIcon />
-                <span>➕ Banka Ekle</span>
-              </button>
-              <button
-                onClick={handleRemoveFromBank}
-                className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2"
-              >
-                <BankIcon />
-                <span>➖ Banka Çıkar</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Sıra Bitirme */}
-          <button
-            onClick={handleEndTurn}
-            className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-5 px-6 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 text-xl"
-          >
-            ✅ Sırayı Bitir
-          </button>
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-6">⏳</div>
-          <p className="text-xl text-gray-500 font-medium">Şu an senin sıran değil</p>
-          <p className="text-lg text-gray-400 mt-2">Sıranı bekle...</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

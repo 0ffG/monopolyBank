@@ -100,49 +100,49 @@ export default function Lobby({ lobby }: LobbyProps) {
   );
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-6xl w-full min-h-[700px] transform transition-all duration-500 hover:scale-105">
+    <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-12 max-w-6xl w-full min-h-[600px] md:min-h-[700px] transform transition-all duration-500 hover:scale-105">
       {/* Header */}
-      <div className="relative mb-12">
+      <div className="relative mb-6 md:mb-12">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 transform -skew-y-2 rounded-lg"></div>
-        <div className="relative bg-white p-8 rounded-lg shadow-lg">
-          <h1 className="text-5xl font-extrabold text-gray-800 text-center mb-4 tracking-wider">
+        <div className="relative bg-white p-4 md:p-8 rounded-lg shadow-lg">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800 text-center mb-2 md:mb-4 tracking-wider">
             LOBİ
           </h1>
-          <div className="flex items-center justify-center space-x-4">
-            <span className="text-2xl font-bold text-purple-600">Kod:</span>
-            <div className="bg-gray-100 px-6 py-3 rounded-full border-2 border-gray-300">
-              <span className="text-3xl font-mono font-bold text-gray-800 tracking-widest">{lobby.code}</span>
+          <div className="flex items-center justify-center space-x-2 md:space-x-4">
+            <span className="text-lg md:text-2xl font-bold text-purple-600">Kod:</span>
+            <div className="bg-gray-100 px-3 md:px-6 py-2 md:py-3 rounded-full border-2 border-gray-300">
+              <span className="text-xl md:text-3xl font-mono font-bold text-gray-800 tracking-widest">{lobby.code}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex justify-center mb-8">
-        <div className="bg-gray-100 p-2 rounded-full shadow-inner">
-          <div className="flex space-x-2">
+      <div className="flex justify-center mb-4 md:mb-8">
+        <div className="bg-gray-100 p-1 md:p-2 rounded-full shadow-inner">
+          <div className="flex space-x-1 md:space-x-2">
             <button
               onClick={() => setActiveTab("players")}
-              className={`flex items-center space-x-3 px-8 py-4 rounded-full transition-all duration-300 ${
+              className={`flex items-center space-x-2 md:space-x-3 px-4 md:px-8 py-2 md:py-4 rounded-full transition-all duration-300 ${
                 activeTab === "players" 
                   ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transform scale-105" 
                   : "text-gray-600 hover:text-gray-800 hover:bg-white"
               }`}
             >
               <UsersIcon />
-              <span className="text-lg font-semibold">Oyuncular</span>
+              <span className="text-sm md:text-lg font-semibold">Oyuncular</span>
             </button>
             {isHost && (
               <button
                 onClick={() => setActiveTab("settings")}
-                className={`flex items-center space-x-3 px-8 py-4 rounded-full transition-all duration-300 ${
+                className={`flex items-center space-x-2 md:space-x-3 px-4 md:px-8 py-2 md:py-4 rounded-full transition-all duration-300 ${
                   activeTab === "settings" 
                     ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transform scale-105" 
                     : "text-gray-600 hover:text-gray-800 hover:bg-white"
                 }`}
               >
                 <SettingsIcon />
-                <span className="text-lg font-semibold">Ayarlar</span>
+                <span className="text-sm md:text-lg font-semibold">Ayarlar</span>
               </button>
             )}
           </div>
@@ -151,24 +151,24 @@ export default function Lobby({ lobby }: LobbyProps) {
 
       {/* Players Tab */}
       {activeTab === "players" && (
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 mb-8">
-          <h3 className="text-3xl font-bold text-gray-800 mb-6 text-center">Oyuncular</h3>
-          <div className="grid gap-4">
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl md:rounded-2xl p-4 md:p-8 mb-4 md:mb-8">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">Oyuncular</h3>
+          <div className="grid gap-3 md:gap-4">
             {lobby.players.map((player, index) => (
               <div 
                 key={player.id} 
-                className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-white rounded-lg md:rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                <div className="flex flex-col space-y-3 md:space-y-0 md:flex-row md:justify-between md:items-center">
+                  <div className="flex items-center space-x-3 md:space-x-4 flex-1 min-w-0">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg md:text-xl flex-shrink-0">
                       {index + 1}
                     </div>
-                    <div>
-                      <span className="text-xl font-semibold text-gray-800">{player.name}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-lg md:text-xl font-semibold text-gray-800 truncate">{player.name}</div>
                       {player.id === lobby.hostId && (
                         <div className="flex items-center mt-1">
-                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-semibold">
                             👑 HOST
                           </span>
                         </div>
@@ -178,7 +178,7 @@ export default function Lobby({ lobby }: LobbyProps) {
                   {isHost && player.id !== lobby.hostId && (
                     <button
                       onClick={() => handleKickPlayer(player.id)}
-                      className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transform hover:-translate-y-1 transition-all duration-300"
+                      className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-semibold shadow-lg transform hover:-translate-y-1 transition-all duration-300 text-sm md:text-base w-full md:w-auto flex-shrink-0"
                     >
                       Çıkar
                     </button>
@@ -291,10 +291,10 @@ export default function Lobby({ lobby }: LobbyProps) {
 
       {/* Start Game Button */}
       {isHost && (
-        <div className="text-center">
+        <div className="text-center mt-6 md:mt-8">
           <button
             onClick={handleStartGame}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-6 px-12 rounded-full shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out text-2xl"
+            className="w-full max-w-md bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 md:py-6 px-8 md:px-12 rounded-full shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out text-lg md:text-2xl"
           >
             🚀 OYUNU BAŞLAT
           </button>

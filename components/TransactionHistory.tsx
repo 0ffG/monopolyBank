@@ -103,40 +103,42 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 h-full flex flex-col">
-      <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 transform -skew-y-1 rounded-lg"></div>
-        <h3 className="relative text-2xl font-bold text-white py-3 text-center tracking-wide">
+    <div className="bg-white rounded-2xl shadow-xl h-full flex flex-col">
+      {/* Header */}
+      <div className="relative p-4 flex-shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-t-2xl"></div>
+        <h3 className="relative text-xl font-bold text-white text-center tracking-wide">
           📋 İŞLEM GEÇMİŞİ
         </h3>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      {/* Content */}
+      <div className="flex-1 p-4 overflow-hidden flex flex-col">
         {history.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📊</div>
-            <p className="text-xl text-gray-500 font-medium">Henüz işlem yapılmadı</p>
-            <p className="text-lg text-gray-400 mt-2">İlk işlemi yapmayı bekliyor...</p>
+          <div className="text-center py-8">
+            <div className="text-4xl mb-2">📊</div>
+            <p className="text-lg text-gray-500 font-medium">Henüz işlem yapılmadı</p>
+            <p className="text-sm text-gray-400 mt-2">İlk işlemi yapmayı bekliyor...</p>
           </div>
         ) : (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-2 flex-1 overflow-y-auto">
             {history.slice().reverse().map((tx, index) => (
               <div 
                 key={tx.id} 
-                className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group"
+                className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all duration-300 group"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 flex-1">
+                  <div className="flex items-center space-x-2 flex-1">
                     {tx.action === "transfer" && (
                       <>
                         <TransferIcon />
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 text-sm">
-                            <span className="font-semibold text-blue-600">{getPlayerName(tx.details.from)}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-1 text-xs">
+                            <span className="font-semibold text-blue-600 truncate">{getPlayerName(tx.details.from)}</span>
                             <span className="text-gray-500">→</span>
-                            <span className="font-semibold text-purple-600">{getPlayerName(tx.details.to)}</span>
+                            <span className="font-semibold text-purple-600 truncate">{getPlayerName(tx.details.to)}</span>
                           </div>
-                          <div className="font-bold text-green-600 text-lg">
+                          <div className="font-bold text-green-600 text-sm">
                             {tx.details.amount.toLocaleString()}₺
                           </div>
                         </div>
@@ -145,12 +147,12 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
                     {tx.action === "bank-add" && (
                       <>
                         <BankAddIcon />
-                        <div className="flex-1">
-                          <div className="text-sm text-gray-600">Bankadan eklendi</div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-bold text-green-600 text-lg">+{tx.details.amount.toLocaleString()}₺</span>
-                            <span className="text-gray-500">→</span>
-                            <span className="font-semibold text-blue-600">{getPlayerName(tx.details.playerId)}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-gray-600">Bankadan</div>
+                          <div className="flex items-center space-x-1">
+                            <span className="font-bold text-green-600 text-sm">+{tx.details.amount.toLocaleString()}₺</span>
+                            <span className="text-gray-500 text-xs">→</span>
+                            <span className="font-semibold text-blue-600 text-xs truncate">{getPlayerName(tx.details.playerId)}</span>
                           </div>
                         </div>
                       </>
@@ -158,26 +160,26 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
                     {tx.action === "bank-remove" && (
                       <>
                         <BankRemoveIcon />
-                        <div className="flex-1">
-                          <div className="text-sm text-gray-600">Bankadan çıkarıldı</div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-bold text-red-600 text-lg">-{tx.details.amount.toLocaleString()}₺</span>
-                            <span className="text-gray-500">→</span>
-                            <span className="font-semibold text-blue-600">{getPlayerName(tx.details.playerId)}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-gray-600">Bankadan</div>
+                          <div className="flex items-center space-x-1">
+                            <span className="font-bold text-red-600 text-sm">-{tx.details.amount.toLocaleString()}₺</span>
+                            <span className="text-gray-500 text-xs">→</span>
+                            <span className="font-semibold text-blue-600 text-xs truncate">{getPlayerName(tx.details.playerId)}</span>
                           </div>
                         </div>
                       </>
                     )}
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                      #{history.length - index}
+                  <div className="flex items-center space-x-1 flex-shrink-0">
+                    <div className="text-xs text-gray-400 bg-gray-100 px-1 py-0.5 rounded text-center min-w-[20px]">
+                      {history.length - index}
                     </div>
                     {isHost && (
                       <button
                         onClick={() => handleUndoSpecific(tx.id, tx.details, tx.action)}
-                        className="opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white p-2 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 text-xs"
+                        className="opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white p-1 rounded-full shadow-md transform hover:scale-110 transition-all duration-300"
                         title="Bu işlemi geri al"
                       >
                         <UndoIcon />
@@ -191,20 +193,16 @@ export default function TransactionHistory({ isHost, lobbyCode, players }: Props
         )}
       </div>
 
+      {/* Footer */}
       {isHost && history.length > 0 && (
-        <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
+        <div className="p-3 pt-2 border-t border-gray-200 flex-shrink-0">
           <button
             onClick={handleUndo}
-            className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-full shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2"
+            className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-1.5 px-3 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-1.5 text-xs"
           >
             <UndoIcon />
             <span>🔄 Son İşlemi Geri Al</span>
           </button>
-          <div className="text-center">
-            <p className="text-sm text-gray-500">
-              💡 <strong>İpucu:</strong> Herhangi bir işlemin üzerine gelip kırmızı butona tıklayarak o işlemi geri alabilirsiniz
-            </p>
-          </div>
         </div>
       )}
     </div>

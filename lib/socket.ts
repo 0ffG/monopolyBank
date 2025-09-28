@@ -5,12 +5,12 @@ let socket: Socket | null = null;
 
 export const getSocket = (): Socket => {
   if (!socket) {
-    socket = io("http://localhost:3001", {
+    socket = io("http://192.168.1.9:3001", {
       transports: ["websocket"],
     });
 
     socket.on("connect", () => {
-      console.log("✅ Socket bağlandı! ID:", socket.id);
+      console.log("✅ Socket bağlandı! ID:", socket?.id);
     });
 
     socket.on("connect_error", (err: Error) => {

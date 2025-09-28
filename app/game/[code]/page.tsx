@@ -114,37 +114,53 @@ export default function GamePage() {
     );
   }
 
-  // ✅ Oyun ekranı render
+  // ✅ Oyun ekranı render - Mobil Responsive Layout
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-3rem)]">
-          {/* Sol → Oyuncular */}
-          <div className="lg:col-span-1">
-            <PlayerList
-              players={lobby.players}
-              balances={game.balances}
-              currentTurn={game.currentTurn}
-            />
+    <main className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-2 md:p-4">
+      <div className="max-w-7xl mx-auto min-h-screen">
+        {/* Header */}
+        <div className="mb-2 md:mb-4">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-2 md:p-4">
+            <div className="flex items-center justify-center space-x-2 md:space-x-4">
+              <h1 className="text-lg md:text-3xl font-bold text-gray-800">MONOPOLY BANK</h1>
+              <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-2 md:px-4 py-1 md:py-2 rounded-full">
+                <span className="font-mono font-bold text-sm md:text-lg">{code}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Layout - Mobile First */}
+        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0 lg:h-[calc(100vh-6rem)] scale-90 origin-top">
+          {/* Mobilde: Stack Layout, Desktop'ta: Sol Taraf - İki bölüm */}
+          <div className="space-y-3 lg:grid lg:grid-rows-2 lg:gap-3 lg:space-y-0">
+            {/* Oyuncular */}
+            <div className="h-72 md:h-80 lg:min-h-0">
+              <PlayerList
+                players={lobby.players}
+                balances={game.balances}
+                currentTurn={game.currentTurn}
+              />
+            </div>
+
+            {/* Transaction History */}
+            <div className="h-72 md:h-80 lg:min-h-0">
+              <TransactionHistory
+                isHost={socket.id === lobby.hostId}
+                lobbyCode={lobby.code}
+                players={lobby.players}
+              />
+            </div>
           </div>
 
-          {/* Orta → Oyun Kontrolleri */}
-          <div className="lg:col-span-1">
+          {/* Oyun Kontrolleri - Mobilde Tam Ekran */}
+          <div className="min-h-[70vh] lg:min-h-0">
             <GameControls
               lobbyCode={lobby.code}
               currentPlayerId={game.currentTurn}
               myPlayerId={socket.id || ""}
               players={lobby.players}
               quickButtons={game.gameSettings.quickButtons}
-            />
-          </div>
-
-          {/* Sağ → Transaction History */}
-          <div className="lg:col-span-1">
-            <TransactionHistory
-              isHost={socket.id === lobby.hostId}
-              lobbyCode={lobby.code}
-              players={lobby.players}
             />
           </div>
         </div>

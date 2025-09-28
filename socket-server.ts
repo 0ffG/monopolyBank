@@ -7,7 +7,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000", // Next.js frontend
+    origin: ["http://localhost:3000", "http://192.168.1.9:3000"], // Next.js frontend
     methods: ["GET", "POST"],
   },
 });
@@ -351,6 +351,7 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3001, () => {
+httpServer.listen(3001, "0.0.0.0", () => {
   console.log("✅ Socket.IO server 3001 portunda çalışıyor...");
+  console.log("🌐 Ağ erişimi: http://192.168.1.9:3001");
 });

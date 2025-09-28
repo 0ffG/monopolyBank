@@ -27,66 +27,67 @@ export default function PlayerList({ players, balances, currentTurn }: PlayerLis
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 h-full">
-      <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 transform -skew-y-1 rounded-lg"></div>
-        <h3 className="relative text-2xl font-bold text-white py-3 text-center tracking-wide">
+    <div className="bg-white rounded-xl shadow-xl h-full flex flex-col">
+      {/* Header */}
+      <div className="relative p-3 flex-shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-xl"></div>
+        <h3 className="relative text-lg font-bold text-white text-center tracking-wide">
           👥 OYUNCULAR
         </h3>
       </div>
 
-      {players.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🎮</div>
-          <p className="text-xl text-gray-500 font-medium">Henüz oyuncu yok</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {players.map((player, index) => (
-            <div
-              key={player.id}
-              className={`relative bg-gradient-to-r p-5 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105 ${
-                currentTurn === player.id 
-                  ? "from-yellow-100 to-orange-100 border-2 border-yellow-400 shadow-xl scale-105" 
-                  : "from-gray-50 to-white border border-gray-200 hover:shadow-xl"
-              }`}
-            >
-              {currentTurn === player.id && (
-                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                  🎯 SIRA
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                    {index + 1}
+      {/* Content */}
+      <div className="flex-1 p-3 overflow-y-auto">
+        {players.length === 0 ? (
+          <div className="text-center py-6">
+            <div className="text-3xl mb-2">🎮</div>
+            <p className="text-base text-gray-500 font-medium">Henüz oyuncu yok</p>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {players.map((player, index) => (
+              <div
+                key={player.id}
+                className={`relative bg-gradient-to-r p-3 rounded-xl shadow-md transform transition-all duration-300 ${
+                  currentTurn === player.id 
+                    ? "from-yellow-100 to-orange-100 border-2 border-yellow-400 shadow-lg scale-105" 
+                    : "from-gray-50 to-white border border-gray-200 hover:shadow-lg hover:scale-105"
+                }`}
+              >
+                {currentTurn === player.id && (
+                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                    🎯
                   </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`text-lg font-semibold ${
+                )}
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <span className={`text-sm font-semibold ${
                         currentTurn === player.id ? "text-orange-800" : "text-gray-800"
                       }`}>
                         {player.name}
                       </span>
-                      {currentTurn === player.id && <CrownIcon />}
                     </div>
                   </div>
+                  
+                  {balances && (
+                    <div className="flex items-center space-x-1 bg-white rounded-full px-2 py-1 shadow-sm">
+                      <MoneyIcon />
+                      <span className="text-sm font-bold text-green-600 font-mono">
+                        {balances[player.id]?.toLocaleString() ?? 0}₺
+                      </span>
+                    </div>
+                  )}
                 </div>
-                
-                {balances && (
-                  <div className="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-md">
-                    <MoneyIcon />
-                    <span className="text-lg font-bold text-green-600 font-mono">
-                      {balances[player.id]?.toLocaleString() ?? 0}₺
-                    </span>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
